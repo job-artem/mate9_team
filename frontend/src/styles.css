@@ -7,6 +7,13 @@
   --border: rgba(233, 238, 252, 0.18);
   --topbar: rgba(11, 18, 32, 0.65);
   --accent: #7dd3fc;
+  --container: 90vw;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
@@ -21,6 +28,7 @@ body {
   background: radial-gradient(900px 600px at 15% 10%, #293a8a 0%, transparent 60%),
     radial-gradient(900px 600px at 85% 90%, #2b7a68 0%, transparent 55%), var(--bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 button {
@@ -48,7 +56,7 @@ code {
 }
 
 .topbarInner {
-  width: min(980px, calc(100% - 32px));
+  width: var(--container);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -94,12 +102,14 @@ code {
 .page {
   min-height: 100%;
   display: grid;
-  place-items: center;
-  padding: 28px 18px;
+  place-items: start center;
+  padding: 22px 0;
+  width: var(--container);
+  margin: 0 auto;
 }
 
 .card {
-  width: min(720px, 100%);
+  width: 100%;
   border: 1px solid var(--border);
   background: var(--card);
   backdrop-filter: blur(10px);
