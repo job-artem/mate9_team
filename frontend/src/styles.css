@@ -137,6 +137,161 @@ h1 {
   font-weight: 650;
 }
 
+.uploader {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.fileInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.filePick {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px dashed rgba(233, 238, 252, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filePick:hover {
+  border-color: rgba(125, 211, 252, 0.35);
+}
+
+.alert {
+  margin-top: 14px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.previewBlock {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.previewLabel {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.previewImg {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.chips {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.jobs {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.job {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+}
+
+.jobHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.jobTitle {
+  font-weight: 700;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  color: var(--muted);
+}
+
+.badge.ok {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.14);
+  color: rgba(209, 250, 229, 0.92);
+}
+
+.badge.err {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.12);
+  color: rgba(254, 226, 226, 0.95);
+}
+
+.jobErr {
+  margin-top: 8px;
+  color: rgba(254, 226, 226, 0.95);
+  font-size: 13px;
+}
+
+.grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gridItem {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.gridItem img {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
 .actions {
   display: flex;
   gap: 10px;
