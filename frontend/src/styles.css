@@ -6,7 +6,7 @@
     --muted: #525252;
     --border: #000000;
     --topbar: #FFFFFF;
-    --accent: #5acaff;
+    --accent: #000000;
     --container: 90vw;
 }
 
@@ -89,13 +89,13 @@ code {
 }
 
 .brandLogo {
-    height: 120px;
+    height: 45px;
     width: auto;
     display: block;
 }
 
 .topbarLanding .brandLogo {
-    height: 136px;
+    height: 51px;
 }
 
 .nav {
