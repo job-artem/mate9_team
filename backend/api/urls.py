@@ -6,6 +6,7 @@ urlpatterns = [
     path("health/", views.health, name="health"),
     path("hello/", views.hello, name="hello"),
     path("styles/", views.styles, name="styles"),
+    path("demo/landing-looks/", views.demo_landing_looks, name="demo_landing_looks"),
     path("generations/", views.create_generation, name="create_generation"),
     path("generations/<uuid:generation_id>/", views.get_generation, name="get_generation"),
     path("auth/register/", views.auth_register, name="auth_register"),

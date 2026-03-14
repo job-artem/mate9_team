@@ -1,6 +1,7 @@
 import os
 import json
 from typing import Any
+from uuid import UUID
 
 from django.http import HttpRequest, JsonResponse
 from django.core.cache import cache
@@ -34,6 +35,84 @@ def styles(_request: HttpRequest):
     return JsonResponse(
         {
             "styles": [{"key": p.key, "label": p.label, "prompt": p.prompt} for p in PRESETS],
+        }
+    )
+
+
+def demo_landing_looks(request: HttpRequest):
+    """
+    Public endpoint for the landing page demo cards.
+    Returns a small set of "generated look" image URLs from a known Generation id.
+
+    Env:
+      - DEMO_LANDING_GENERATION_ID (optional): UUID of a Generation containing demo images.
+    """
+    if request.method != "GET":
+        return _json_error("Method not allowed", status=405)
+
+    default_id = "619f4fac-711c-4d66-be29-90c14a657452"
+    raw_id = (os.environ.get("DEMO_LANDING_GENERATION_ID") or default_id).strip()
+    try:
+        gen_id = UUID(raw_id)
+    except Exception:
+        return _json_error("Invalid DEMO_LANDING_GENERATION_ID", status=500, value=raw_id)
+
+    try:
+        gen = Generation.objects.prefetch_related("jobs").get(id=gen_id)
+    except Generation.DoesNotExist:
+        return _json_error("Demo generation not found", status=404, id=str(gen_id))
+
+    jobs = {j.style_key: j for j in gen.jobs.all().order_by("created_at")}
+
+    def first_image(style_key: str) -> str:
+        j = jobs.get(style_key)
+        if not j:
+            return ""
+        if isinstance(j.result_images, list) and j.result_images:
+            return str(j.result_images[0] or "")
+        return ""
+
+    looks = [
+        {
+            "key": "office_smart",
+            "title": "Office smart",
+            "tag": "clean lines • soft neutrals",
+            "style_key": "tech_founder",
+            "image_url": first_image("tech_founder"),
+        },
+        {
+            "key": "casual_city",
+            "title": "Casual city",
+            "tag": "streetwear • cinematic",
+            "style_key": "streetwear",
+            "image_url": first_image("streetwear"),
+        },
+        {
+            "key": "evening_event",
+            "title": "Evening event",
+            "tag": "elegant • glossy light",
+            "style_key": "luxury_lifestyle",
+            "image_url": first_image("luxury_lifestyle"),
+        },
+        {
+            "key": "minimal_aesthetic",
+            "title": "Minimal aesthetic",
+            "tag": "monochrome • gallery vibe",
+            "style_key": "minimal_aesthetic",
+            "image_url": first_image("minimal_aesthetic"),
+        },
+    ]
+
+    return JsonResponse(
+        {
+            "generation": {
+                "id": str(gen.id),
+                "name": gen.name,
+                "created_at": gen.created_at.isoformat(),
+                "source_image_url": gen.source_image_url,
+                "source_images": gen.source_images,
+            },
+            "looks": looks,
         }
     )
 

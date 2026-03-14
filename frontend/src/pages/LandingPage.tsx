@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 
 type Faq = { q: string; a: string };
+type DemoLook = { key: string; title: string; tag: string; style_key: string; image_url: string };
+type DemoLooksResponse = { looks: DemoLook[] };
 
 function IconSparkle() {
   return (
@@ -46,10 +48,33 @@ function scrollToId(id: string) {
 export default function LandingPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [demoLooks, setDemoLooks] = useState<Record<string, string>>({});
 
   useEffect(() => {
     document.body.classList.add("landingBody");
     return () => document.body.classList.remove("landingBody");
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/demo/landing-looks/")
+      .then(async (r) => {
+        if (!r.ok) return null;
+        return (await r.json()) as DemoLooksResponse;
+      })
+      .then((data) => {
+        if (!data || cancelled) return;
+        const map: Record<string, string> = {};
+        for (const l of data.looks || []) {
+          if (l.key && l.image_url) map[l.key] = l.image_url;
+        }
+        setDemoLooks(map);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const [openFaq, setOpenFaq] = useState<number>(0);
@@ -164,28 +189,38 @@ export default function LandingPage() {
 
             <div className="lookCards">
               <div className="lookCard" style={{ ["--tint" as never]: "rgba(212, 158, 109, 0.35)" }}>
-                <div className="lookImg lookImgOffice" />
+                <div className="lookMedia lookImgOffice">
+                  {demoLooks.office_smart ? <img className="lookPhoto" src={demoLooks.office_smart} alt="Office smart demo" loading="lazy" /> : null}
+                </div>
                 <div className="lookMeta">
                   <div className="lookTitle">Office smart</div>
                   <div className="lookTag">clean lines • soft neutrals</div>
                 </div>
               </div>
               <div className="lookCard" style={{ ["--tint" as never]: "rgba(91, 140, 196, 0.35)" }}>
-                <div className="lookImg lookImgCity" />
+                <div className="lookMedia lookImgCity">
+                  {demoLooks.casual_city ? <img className="lookPhoto" src={demoLooks.casual_city} alt="Casual city demo" loading="lazy" /> : null}
+                </div>
                 <div className="lookMeta">
                   <div className="lookTitle">Casual city</div>
                   <div className="lookTag">streetwear • cinematic</div>
                 </div>
               </div>
               <div className="lookCard" style={{ ["--tint" as never]: "rgba(120, 94, 166, 0.32)" }}>
-                <div className="lookImg lookImgEvening" />
+                <div className="lookMedia lookImgEvening">
+                  {demoLooks.evening_event ? <img className="lookPhoto" src={demoLooks.evening_event} alt="Evening event demo" loading="lazy" /> : null}
+                </div>
                 <div className="lookMeta">
                   <div className="lookTitle">Evening event</div>
                   <div className="lookTag">elegant • glossy light</div>
                 </div>
               </div>
               <div className="lookCard" style={{ ["--tint" as never]: "rgba(84, 163, 134, 0.32)" }}>
-                <div className="lookImg lookImgMinimal" />
+                <div className="lookMedia lookImgMinimal">
+                  {demoLooks.minimal_aesthetic ? (
+                    <img className="lookPhoto" src={demoLooks.minimal_aesthetic} alt="Minimal aesthetic demo" loading="lazy" />
+                  ) : null}
+                </div>
                 <div className="lookMeta">
                   <div className="lookTitle">Minimal aesthetic</div>
                   <div className="lookTag">monochrome • gallery vibe</div>
