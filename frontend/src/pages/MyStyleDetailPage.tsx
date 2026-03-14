@@ -45,6 +45,18 @@ export default function MyStyleDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<StyleItem | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [storesOpenFor, setStoresOpenFor] = useState<string | null>(null);
+  const [selectedStores, setSelectedStores] = useState<Set<string>>(new Set());
+
+  const STORE_PARTNERS: Array<{ id: string; name: string; badge: string }> = [
+    { id: "zara", name: "Zara", badge: "ZA" },
+    { id: "hm", name: "H&M", badge: "HM" },
+    { id: "asos", name: "ASOS", badge: "AS" },
+    { id: "uniqlo", name: "UNIQLO", badge: "UQ" },
+    { id: "nike", name: "Nike", badge: "NK" },
+    { id: "farfetch", name: "FARFETCH", badge: "FF" },
+    { id: "amazon_fashion", name: "Amazon Fashion", badge: "AM" },
+  ];
 
   useEffect(() => {
     if (loading) return;
@@ -159,11 +171,51 @@ export default function MyStyleDetailPage() {
                           <button
                             className="btn secondary"
                             type="button"
+                            onClick={() => setStoresOpenFor((prev) => (prev === j.style_key ? null : j.style_key))}
+                          >
+                            Find in stores
+                          </button>
+                          <button
+                            className="btn secondary"
+                            type="button"
                             onClick={() => window.alert("Coming soon: save ideas and improvement prompts for this look.")}
                           >
                             Add ideas
                           </button>
                         </div>
+                        {storesOpenFor === j.style_key ? (
+                          <div className="storesBox">
+                            <div className="storesTitle">Search in your favorite stores (coming soon)</div>
+                            <div className="storesList">
+                              {STORE_PARTNERS.map((s) => {
+                                const checked = selectedStores.has(s.id);
+                                return (
+                                  <label key={s.id} className={checked ? "storeItem checked" : "storeItem"}>
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => {
+                                        setSelectedStores((prev) => {
+                                          const next = new Set(prev);
+                                          if (next.has(s.id)) next.delete(s.id);
+                                          else next.add(s.id);
+                                          return next;
+                                        });
+                                      }}
+                                    />
+                                    <span className="storeIcon" aria-hidden="true">
+                                      {s.badge}
+                                    </span>
+                                    <span className="storeName">{s.name}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            <div className="storesHint">
+                              Next step: we will query these stores for similar items (by style + image).
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>

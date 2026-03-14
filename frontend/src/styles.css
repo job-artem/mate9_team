@@ -887,6 +887,73 @@ h1 {
     gap: 10px;
 }
 
+.storesBox {
+    margin-top: 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(233, 238, 252, 0.14);
+    background: rgba(0, 0, 0, 0.08);
+    padding: 12px;
+}
+
+.storesTitle {
+    font-weight: 760;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+}
+
+.storesList {
+    margin-top: 10px;
+    display: grid;
+    gap: 8px;
+}
+
+.storeItem {
+    display: grid;
+    grid-template-columns: 18px 34px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(233, 238, 252, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    user-select: none;
+}
+
+.storeItem.checked {
+    border-color: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.storeItem input {
+    width: 16px;
+    height: 16px;
+}
+
+.storeIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 11px;
+    border: 1px solid rgba(233, 238, 252, 0.16);
+    background: rgba(0, 0, 0, 0.12);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.storeName {
+    font-weight: 650;
+}
+
+.storesHint {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
 .actions {
     display: flex;
     gap: 10px;
