@@ -48,9 +48,9 @@ export default function App() {
               ) : user ? (
                 displayName
               ) : (
-                <>
-                  Треба залогінитись. <Link className="userLink" to="/login">Вхід</Link>
-                </>
+                <p class="login-text">
+                  <Link className="userLink" to="/login">Вхід</Link>
+                </p>
               )}
             </div>
           </div>
