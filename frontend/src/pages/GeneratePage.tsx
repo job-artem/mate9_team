@@ -8,7 +8,13 @@ type Style = { key: string; label: string; prompt: string };
 type StylesResponse = { styles: Style[] };
 
 type CreateGenerationResponse = {
-  generation: { id: string; created_at: string; endpoint: string; source_image_url: string };
+  generation: {
+    id: string;
+    created_at: string;
+    endpoint: string;
+    source_image_url: string;
+    source_images?: { front?: string; left?: string; right?: string };
+  };
   jobs: Array<{
     id: string;
     style_key: string;
@@ -20,7 +26,13 @@ type CreateGenerationResponse = {
 };
 
 type GenerationStatusResponse = {
-  generation: { id: string; created_at: string; endpoint: string; source_image_url: string };
+  generation: {
+    id: string;
+    created_at: string;
+    endpoint: string;
+    source_image_url: string;
+    source_images?: { front?: string; left?: string; right?: string };
+  };
   jobs: Array<{
     id: string;
     style_key: string;
@@ -54,6 +66,7 @@ export default function GeneratePage() {
   const [pending, setPending] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [styleName, setStyleName] = useState("");
+  const [sourceFrontUrl, setSourceFrontUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -166,6 +179,7 @@ export default function GeneratePage() {
     setGenerationId(null);
     setJobs([]);
     setPending(false);
+    setSourceFrontUrl(null);
 
     try {
       const form = new FormData();
@@ -184,6 +198,7 @@ export default function GeneratePage() {
       if (!r.ok) throw new Error([data.error, data.hint].filter(Boolean).join(". ") || `HTTP ${r.status}`);
 
       setGenerationId(data.generation.id);
+      setSourceFrontUrl(data.generation.source_images?.front || data.generation.source_image_url || null);
 
       // Map initial jobs to the polling response shape.
       setJobs(
@@ -319,15 +334,28 @@ export default function GeneratePage() {
                   </div>
                 </div>
                 {j.error ? <div className="jobErr">{j.error}</div> : null}
-                {j.images?.length ? (
-                  <div className="grid">
-                    {j.images.map((url) => (
-                      <a key={url} className="gridItem" href={url} target="_blank" rel="noreferrer">
-                        <img src={url} alt={j.style_label} loading="lazy" />
-                      </a>
-                    ))}
+                <div className="pair">
+                  <div className="pairFrame">
+                    <div className="pairLabel">До</div>
+                    {frontPreview || sourceFrontUrl ? (
+                      <img className="pairImg" src={frontPreview || sourceFrontUrl || ""} alt="Input front" />
+                    ) : (
+                      <div className="pairEmpty">Вхідне фото</div>
+                    )}
                   </div>
-                ) : null}
+                  <div className="pairFrame">
+                    <div className="pairLabel">Після</div>
+                    {j.images?.length ? (
+                      <a className="pairLink" href={j.images[0]} target="_blank" rel="noreferrer">
+                        <img className="pairImg" src={j.images[0]} alt={j.style_label} loading="lazy" />
+                      </a>
+                    ) : j.status === "ERROR" ? (
+                      <div className="pairEmpty">Помилка</div>
+                    ) : (
+                      <div className="pairEmpty">Генерується...</div>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>

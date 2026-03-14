@@ -1,6 +1,7 @@
 import { Link, NavLink, Route, Routes } from "react-router-dom";
 import GeneratePage from "./pages/GeneratePage";
-import MyStylesPage from "./pages/MyStylesPage";
+import MyStylesListPage from "./pages/MyStylesListPage";
+import MyStyleDetailPage from "./pages/MyStyleDetailPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
 import { useAuth } from "./auth";
@@ -55,7 +56,8 @@ export default function App() {
       <main className="main">
         <Routes>
           <Route path="/" element={<GeneratePage />} />
-          <Route path="/my-styles" element={<MyStylesPage />} />
+          <Route path="/my-styles" element={<MyStylesListPage />} />
+          <Route path="/my-styles/:id" element={<MyStyleDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<LogoutPage />} />
         </Routes>

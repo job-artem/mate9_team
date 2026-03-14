@@ -358,6 +358,145 @@ h1 {
   margin-top: 4px;
 }
 
+.stylesTable {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.stylesRow {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+  height: 20vh;
+  min-height: 160px;
+}
+
+.stylesRow:hover {
+  border-color: rgba(125, 211, 252, 0.35);
+}
+
+@media (max-width: 860px) {
+  .stylesRow {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+.stylesRowLeft {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 6px;
+  min-height: 0;
+}
+
+.stylesRowTitle {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.stylesRowMeta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stylesRowImg {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.18);
+  min-height: 0;
+}
+
+.stylesRowImg img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.stylesRowRight {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+}
+
+.stylesRowGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  align-content: center;
+}
+
+@media (max-width: 1180px) {
+  .stylesRowGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .stylesRowGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.stylesThumb {
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  min-height: 110px;
+}
+
+.stylesThumb img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.stylesThumbEmpty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stylesThumbLabel {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(6px);
+  color: rgba(233, 238, 252, 0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detailHead {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .previewEmpty {
   height: 220px;
   display: grid;
@@ -500,6 +639,61 @@ h1 {
   width: 100%;
   height: 220px;
   object-fit: cover;
+}
+
+.pair {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 760px) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pairFrame {
+  position: relative;
+  height: 360px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.pairImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.pairEmpty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.pairLabel {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+.pairLink {
+  display: block;
+  height: 100%;
 }
 
 .actions {
