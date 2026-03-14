@@ -66,79 +66,79 @@ type CreateDailyLookResponse = {
 };
 
 const WEATHER_OPTIONS: Array<{ key: WeatherKey; label: string }> = [
-  { key: "sunny", label: "Сонячно" },
-  { key: "cloudy", label: "Хмарно" },
-  { key: "rain", label: "Дощ" },
-  { key: "snow", label: "Сніг" },
-  { key: "windy", label: "Вітряно" },
-  { key: "hot", label: "Спека" },
-  { key: "cold", label: "Холодно" },
-  { key: "fog", label: "Туман" }
+  { key: "sunny", label: "Sunny" },
+  { key: "cloudy", label: "Cloudy" },
+  { key: "rain", label: "Rain" },
+  { key: "snow", label: "Snow" },
+  { key: "windy", label: "Windy" },
+  { key: "hot", label: "Hot" },
+  { key: "cold", label: "Cold" },
+  { key: "fog", label: "Fog" }
 ];
 
 const OCCASION_OPTIONS: Array<{ key: OccasionKey; label: string }> = [
-  { key: "casual_day", label: "Звичайний день" },
-  { key: "business_meeting", label: "Бізнес зустріч" },
-  { key: "business_party", label: "Бізнес вечірка" },
-  { key: "interview", label: "Співбесіда" },
-  { key: "conference", label: "Конференція" },
-  { key: "date", label: "Побачення" },
-  { key: "birthday", label: "День народження" },
-  { key: "holiday", label: "Свято" },
-  { key: "wedding_guest", label: "Весілля (гість)" },
-  { key: "funeral", label: "Похорони" },
-  { key: "graduation", label: "Випускний" },
-  { key: "gym", label: "Тренування" },
-  { key: "travel", label: "Подорож" },
-  { key: "night_out", label: "Вечір з друзями" }
+  { key: "casual_day", label: "Everyday" },
+  { key: "business_meeting", label: "Business meeting" },
+  { key: "business_party", label: "Business party" },
+  { key: "interview", label: "Interview" },
+  { key: "conference", label: "Conference" },
+  { key: "date", label: "Date night" },
+  { key: "birthday", label: "Birthday" },
+  { key: "holiday", label: "Holiday" },
+  { key: "wedding_guest", label: "Wedding (guest)" },
+  { key: "funeral", label: "Funeral" },
+  { key: "graduation", label: "Graduation" },
+  { key: "gym", label: "Workout" },
+  { key: "travel", label: "Travel" },
+  { key: "night_out", label: "Night out" }
 ];
 
 const LOCATION_GROUPS: Array<{ label: string; options: Array<{ value: string; label: string }> }> = [
   {
-    label: "Континенти",
+    label: "Continents",
     options: [
-      { value: "Європа", label: "Європа" },
-      { value: "Африка", label: "Африка" },
-      { value: "Америка", label: "Америка" },
-      { value: "Азія", label: "Азія" }
+      { value: "Europe", label: "Europe" },
+      { value: "Africa", label: "Africa" },
+      { value: "Americas", label: "Americas" },
+      { value: "Asia", label: "Asia" }
     ]
   },
   {
-    label: "Країни",
+    label: "Countries",
     options: [
-      { value: "Україна", label: "Україна" },
-      { value: "Франція", label: "Франція" },
-      { value: "Італія", label: "Італія" },
-      { value: "Велика Британія", label: "Велика Британія" },
-      { value: "США", label: "США" },
-      { value: "Японія", label: "Японія" },
-      { value: "Китай", label: "Китай" },
-      { value: "ОАЕ", label: "ОАЕ" },
-      { value: "Туреччина", label: "Туреччина" }
+      { value: "Ukraine", label: "Ukraine" },
+      { value: "France", label: "France" },
+      { value: "Italy", label: "Italy" },
+      { value: "United Kingdom", label: "United Kingdom" },
+      { value: "USA", label: "USA" },
+      { value: "Japan", label: "Japan" },
+      { value: "China", label: "China" },
+      { value: "UAE", label: "UAE" },
+      { value: "Turkey", label: "Turkey" }
     ]
   },
   {
-    label: "Міста / столиці",
+    label: "Cities / capitals",
     options: [
-      { value: "Київ", label: "Київ" },
-      { value: "Париж", label: "Париж" },
-      { value: "Лондон", label: "Лондон" },
-      { value: "Мілан", label: "Мілан" },
-      { value: "Рим", label: "Рим" },
-      { value: "Нью-Йорк", label: "Нью-Йорк" },
-      { value: "Лос-Анджелес", label: "Лос-Анджелес" },
-      { value: "Токіо", label: "Токіо" },
-      { value: "Шанхай", label: "Шанхай" },
-      { value: "Пекін", label: "Пекін" },
-      { value: "Дубай", label: "Дубай" },
-      { value: "Стамбул", label: "Стамбул" }
+      { value: "Kyiv", label: "Kyiv" },
+      { value: "Paris", label: "Paris" },
+      { value: "London", label: "London" },
+      { value: "Milan", label: "Milan" },
+      { value: "Rome", label: "Rome" },
+      { value: "New York", label: "New York" },
+      { value: "Los Angeles", label: "Los Angeles" },
+      { value: "Tokyo", label: "Tokyo" },
+      { value: "Shanghai", label: "Shanghai" },
+      { value: "Beijing", label: "Beijing" },
+      { value: "Dubai", label: "Dubai" },
+      { value: "Istanbul", label: "Istanbul" }
     ]
   },
   {
-    label: "Визначні місця",
+    label: "Landmarks",
     options: [
-      { value: "Eiffel Tower (Paris)", label: "Ейфелева вежа (Париж)" },
-      { value: "Shibuya Crossing (Tokyo)", label: "Шібуя (Токіо)" },
+      { value: "Eiffel Tower (Paris)", label: "Eiffel Tower (Paris)" },
+      { value: "Shibuya Crossing (Tokyo)", label: "Shibuya Crossing (Tokyo)" },
       { value: "Times Square (NYC)", label: "Times Square (NYC)" },
       { value: "Dubai Marina", label: "Dubai Marina" }
     ]
@@ -214,7 +214,7 @@ export default function DailyLookPage() {
       return;
     }
     if (!file) {
-      setError("Завантаж базове фото.");
+      setError("Upload a base photo.");
       return;
     }
 
@@ -275,7 +275,7 @@ export default function DailyLookPage() {
         <div className="card">
           <h1>Daily look</h1>
           <div className="alert">
-            Треба залогінитись, щоб користуватись генератором. <a href="#/login">Вхід</a>
+            Please sign in to use the generator. <a href="#/login">Sign in</a>
           </div>
         </div>
       </div>
@@ -286,11 +286,11 @@ export default function DailyLookPage() {
     <div className="page">
       <div className="card">
         <h1>Daily look</h1>
-        <p className="muted">Підбір образу на основі погоди, локації та події. Результат збережеться у “Мої стилі”.</p>
+        <p className="muted">Generate outfit ideas based on weather, location, and occasion. Results are saved to “My styles”.</p>
 
         <div className="dailyForm">
           <label className="field">
-            <span className="fieldLabel">Локація</span>
+            <span className="fieldLabel">Location</span>
             <select className="input" value={location} onChange={(e) => setLocation(e.target.value)}>
               {LOCATION_GROUPS.map((g) => (
                 <optgroup key={g.label} label={g.label}>
@@ -305,7 +305,7 @@ export default function DailyLookPage() {
           </label>
 
           <label className="field">
-            <span className="fieldLabel">Погода</span>
+            <span className="fieldLabel">Weather</span>
             <select className="input" value={weather} onChange={(e) => setWeather(e.target.value as WeatherKey)}>
               {WEATHER_OPTIONS.map((w) => (
                 <option key={w.key} value={w.key}>
@@ -316,7 +316,7 @@ export default function DailyLookPage() {
           </label>
 
           <label className="field">
-            <span className="fieldLabel">Подія / occasion</span>
+            <span className="fieldLabel">Occasion</span>
             <select className="input" value={occasion} onChange={(e) => setOccasion(e.target.value as OccasionKey)}>
               {OCCASION_OPTIONS.map((o) => (
                 <option key={o.key} value={o.key}>
@@ -327,17 +327,17 @@ export default function DailyLookPage() {
           </label>
 
           <label className="field">
-            <span className="fieldLabel">Вихідна фотка</span>
+            <span className="fieldLabel">Base photo</span>
             <label className="filePick" style={{ width: "100%" }}>
               <input className="fileInput" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-              <span>{file ? "Змінити фото" : "Завантажити фото"}</span>
+              <span>{file ? "Change photo" : "Upload photo"}</span>
             </label>
           </label>
         </div>
 
         {previewUrl ? (
           <div className="previewBlock">
-            <div className="previewLabel">Базове фото</div>
+            <div className="previewLabel">Base photo</div>
             <img className="previewImg" src={previewUrl} alt="Base preview" />
           </div>
         ) : null}
@@ -350,10 +350,10 @@ export default function DailyLookPage() {
 
         <div className="actions">
           <button className="btn" disabled={!canSubmit} onClick={() => void onGenerate()}>
-            {creating ? "Генеруємо..." : pending ? "У процесі..." : "Згенерувати 5 варіантів"}
+            {creating ? "Generating..." : pending ? "In progress..." : "Generate 5 looks"}
           </button>
           <button className="btn secondary" onClick={() => navigate("/my-styles")}>
-            Мої стилі
+            My styles
           </button>
         </div>
 
@@ -361,11 +361,11 @@ export default function DailyLookPage() {
           <p className="muted" style={{ marginTop: 10 }}>
             {generationName ? (
               <>
-                Назва: <code>{generationName}</code>
+                Name: <code>{generationName}</code>
                 <br />
               </>
             ) : null}
-            Контекст: <code>{headerMeta}</code>
+            Context: <code>{headerMeta}</code>
             <br />
             Generation id: <code>{generationId}</code>
           </p>
@@ -384,23 +384,23 @@ export default function DailyLookPage() {
                 {j.error ? <div className="jobErr">{j.error}</div> : null}
                 <div className="pair">
                   <div className="pairFrame">
-                    <div className="pairLabel">До</div>
+                    <div className="pairLabel">Before</div>
                     {previewUrl || sourceFrontUrl ? (
                       <img className="pairImg" src={previewUrl || sourceFrontUrl || ""} alt="Input" />
                     ) : (
-                      <div className="pairEmpty">Вхідне фото</div>
+                      <div className="pairEmpty">Input photo</div>
                     )}
                   </div>
                   <div className="pairFrame">
-                    <div className="pairLabel">Після</div>
+                    <div className="pairLabel">After</div>
                     {j.images?.length ? (
                       <a className="pairLink" href={j.images[0]} target="_blank" rel="noreferrer">
                         <img className="pairImg" src={j.images[0]} alt={j.style_label} loading="lazy" />
                       </a>
                     ) : j.status === "ERROR" ? (
-                      <div className="pairEmpty">Помилка</div>
+                      <div className="pairEmpty">Error</div>
                     ) : (
-                      <div className="pairEmpty">Генерується...</div>
+                      <div className="pairEmpty">Generating...</div>
                     )}
                   </div>
                 </div>
@@ -412,4 +412,3 @@ export default function DailyLookPage() {
     </div>
   );
 }
-

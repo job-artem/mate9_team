@@ -45,27 +45,27 @@ export default function LoginPage() {
   return (
     <div className="page">
       <div className="card">
-        <h1>{mode === "login" ? "Вхід" : "Реєстрація"}</h1>
-        <p className="muted">Проста авторизація для привʼязки твоїх стилів.</p>
+        <h1>{mode === "login" ? "Sign in" : "Create account"}</h1>
+        <p className="muted">Simple authentication to save your styles.</p>
 
         <div className="form">
           <label className="field">
-            <span className="fieldLabel">Пошта</span>
+            <span className="fieldLabel">Email</span>
             <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
           <label className="field">
-            <span className="fieldLabel">Пароль</span>
+            <span className="fieldLabel">Password</span>
             <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </label>
 
           {mode === "register" ? (
             <>
               <label className="field">
-                <span className="fieldLabel">Імʼя</span>
+                <span className="fieldLabel">First name</span>
                 <input className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
               </label>
               <label className="field">
-                <span className="fieldLabel">Прізвище</span>
+                <span className="fieldLabel">Last name</span>
                 <input className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
               </label>
             </>
@@ -80,14 +80,14 @@ export default function LoginPage() {
 
         <div className="actions">
           <button className="btn" disabled={busy || !email || !password} onClick={() => void onSubmit()}>
-            {busy ? "..." : mode === "login" ? "Увійти" : "Створити акаунт"}
+            {busy ? "..." : mode === "login" ? "Sign in" : "Create account"}
           </button>
           <button
             className="btn secondary"
             disabled={busy}
             onClick={() => setMode((m) => (m === "login" ? "register" : "login"))}
           >
-            {mode === "login" ? "Реєстрація" : "У мене вже є акаунт"}
+            {mode === "login" ? "Register" : "I already have an account"}
           </button>
         </div>
       </div>

@@ -19,32 +19,32 @@ BASE_PROMPT_PREFIX = (
 PRESETS: list[StylePreset] = [
     StylePreset(
         key="tech_founder",
-        label="Тех фаундер",
+        label="Tech founder",
         prompt=f"{BASE_PROMPT_PREFIX}, tech founder, modern smart casual, clean background, softbox lighting",
     ),
     StylePreset(
         key="fashion_model",
-        label="Фешн модель",
+        label="Fashion model",
         prompt=f"{BASE_PROMPT_PREFIX}, fashion model, runway-ready look, editorial studio lighting",
     ),
     StylePreset(
         key="streetwear",
-        label="Стрітвір",
+        label="Streetwear",
         prompt=f"{BASE_PROMPT_PREFIX}, oversized streetwear outfit, urban background, cinematic lighting",
     ),
     StylePreset(
         key="luxury_lifestyle",
-        label="Лакшері лайфстайл",
+        label="Luxury lifestyle",
         prompt=f"{BASE_PROMPT_PREFIX}, luxury lifestyle, tailored outfit, hotel lobby vibe, glossy editorial lighting",
     ),
     StylePreset(
         key="fitness_athlete",
-        label="Фітнес атлет",
+        label="Fitness athlete",
         prompt=f"{BASE_PROMPT_PREFIX}, fitness athlete, athletic fit outfit, gym studio, dramatic rim light",
     ),
     StylePreset(
         key="minimal_aesthetic",
-        label="Мінімал естетика",
+        label="Minimal aesthetic",
         prompt=f"{BASE_PROMPT_PREFIX}, minimal aesthetic, monochrome outfit, gallery space, soft daylight",
     ),
 ]

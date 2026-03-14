@@ -21,15 +21,15 @@ export default function LogoutPage() {
   return (
     <div className="page">
       <div className="card">
-        <h1>Вихід</h1>
-        <p className="muted">Локальні дані очищені. Авторизацію додамо пізніше.</p>
+        <h1>Signed out</h1>
+        <p className="muted">Local data cleared.</p>
 
         <div className="actions">
           <button className="btn" onClick={() => navigate("/generate")}>
-            Повернутись до генерації
+            Back to generator
           </button>
           <Link className="btn secondary" to="/">
-            На головну
+            Home
           </Link>
         </div>
       </div>

@@ -306,7 +306,7 @@ export default function LandingPage() {
       <footer className="landingFooter">
         <div className="landingContainer footerInner">
           <div className="footerCol">
-            <div className="footerLogo">Mate9</div>
+            <div className="footerLogo">GetDressed</div>
             <div className="footerText">AI-powered fashion styling, built to help you choose outfits with confidence.</div>
           </div>
           <div className="footerCol">
@@ -346,4 +346,3 @@ export default function LandingPage() {
     </div>
   );
 }
-

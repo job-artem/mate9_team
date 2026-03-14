@@ -518,38 +518,38 @@ def get_generation(request: HttpRequest, generation_id):
     )
 
 
-_WEATHER_LABELS_UA = {
-    "sunny": "Сонячно",
-    "cloudy": "Хмарно",
-    "rain": "Дощ",
-    "snow": "Сніг",
-    "windy": "Вітряно",
-    "hot": "Спека",
-    "cold": "Холодно",
-    "fog": "Туман",
+_WEATHER_LABELS_EN = {
+    "sunny": "Sunny",
+    "cloudy": "Cloudy",
+    "rain": "Rain",
+    "snow": "Snow",
+    "windy": "Windy",
+    "hot": "Hot",
+    "cold": "Cold",
+    "fog": "Fog",
 }
 
-_OCCASION_LABELS_UA = {
-    "casual_day": "Звичайний день",
-    "business_meeting": "Бізнес зустріч",
-    "business_party": "Бізнес вечірка",
-    "interview": "Співбесіда",
-    "conference": "Конференція",
-    "date": "Побачення",
-    "birthday": "День народження",
-    "holiday": "Свято",
-    "wedding_guest": "Весілля (гість)",
-    "funeral": "Похорони",
-    "graduation": "Випускний",
-    "gym": "Тренування",
-    "travel": "Подорож",
-    "night_out": "Вечір з друзями",
+_OCCASION_LABELS_EN = {
+    "casual_day": "Everyday",
+    "business_meeting": "Business meeting",
+    "business_party": "Business party",
+    "interview": "Interview",
+    "conference": "Conference",
+    "date": "Date night",
+    "birthday": "Birthday",
+    "holiday": "Holiday",
+    "wedding_guest": "Wedding (guest)",
+    "funeral": "Funeral",
+    "graduation": "Graduation",
+    "gym": "Workout",
+    "travel": "Travel",
+    "night_out": "Night out",
 }
 
 
 def _daily_prompt_variant(location: str, weather_key: str, occasion_key: str, idx: int) -> str:
-    weather = _WEATHER_LABELS_UA.get(weather_key, weather_key)
-    occasion = _OCCASION_LABELS_UA.get(occasion_key, occasion_key)
+    weather = _WEATHER_LABELS_EN.get(weather_key, weather_key)
+    occasion = _OCCASION_LABELS_EN.get(occasion_key, occasion_key)
     base = (
         "full body photo of the same person, keep identity, "
         "high-end fashion editorial, realistic fabric texture, "
@@ -622,8 +622,8 @@ def create_daily_look(request: HttpRequest):
     base_url = upload_image_bytes(data=raw, content_type=normalized_content_type, filename=getattr(img, "name", None) or "base.jpg")
 
     today = timezone.localdate().strftime("%d.%m.%Y")
-    weather_label = _WEATHER_LABELS_UA.get(weather_key, weather_key)
-    occasion_label = _OCCASION_LABELS_UA.get(occasion_key, occasion_key)
+    weather_label = _WEATHER_LABELS_EN.get(weather_key, weather_key)
+    occasion_label = _OCCASION_LABELS_EN.get(occasion_key, occasion_key)
     name = f"{today} · {location} · {weather_label} · {occasion_label}"
 
     gen = Generation.objects.create(

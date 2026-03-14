@@ -45,7 +45,7 @@ export default function MyStylesListPage() {
   }, [user, loading, navigate]);
 
   const renameStyle = async (id: string, currentName: string) => {
-    const next = window.prompt("Нова назва стилю", currentName);
+    const next = window.prompt("New style name", currentName);
     if (!next || next.trim() === currentName) return;
     setBusyId(id);
     try {
@@ -63,7 +63,7 @@ export default function MyStylesListPage() {
   };
 
   const deleteStyle = async (id: string, name: string) => {
-    if (!window.confirm(`Видалити стиль “${name}”?`)) return;
+    if (!window.confirm(`Delete “${name}”?`)) return;
     setBusyId(id);
     try {
       const r = await fetch(`/api/my-styles/${id}/`, { method: "DELETE" });
@@ -78,8 +78,8 @@ export default function MyStylesListPage() {
   return (
     <div className="page">
       <div className="card">
-        <h1>Мої стилі</h1>
-        <p className="muted">Список твоїх “проєктів стилю”. Клікни рядок, щоб відкрити деталі.</p>
+        <h1>My styles</h1>
+        <p className="muted">Your saved style projects. Click a row to open details.</p>
 
         {error ? (
           <div className="alert">
@@ -89,7 +89,7 @@ export default function MyStylesListPage() {
 
         {!items.length && !error ? (
           <p className="muted">
-            Поки порожньо. Перейди в <Link to="/generate">Генерація стилю</Link> і згенеруй перший сет.
+            Nothing here yet. Go to <Link to="/generate">Style generation</Link> and generate your first set.
           </p>
         ) : null}
 
@@ -121,7 +121,7 @@ export default function MyStylesListPage() {
                       {it.source_images?.front ? (
                         <img src={it.source_images.front} alt="input front" loading="lazy" />
                       ) : (
-                        <div className="pairEmpty">Вхідне фото</div>
+                        <div className="pairEmpty">Input photo</div>
                       )}
                     </div>
                   </div>
@@ -145,7 +145,7 @@ export default function MyStylesListPage() {
                       onClick={() => renameStyle(it.id, it.name)}
                       title="Rename"
                     >
-                      Змінити
+                      Rename
                     </button>
                     <button
                       className="rowActionBtn danger"
@@ -154,7 +154,7 @@ export default function MyStylesListPage() {
                       onClick={() => deleteStyle(it.id, it.name)}
                       title="Delete"
                     >
-                      Видалити
+                      Delete
                     </button>
                   </div>
                 </div>

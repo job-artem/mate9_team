@@ -19,22 +19,22 @@ export default function App() {
       <header className={isLanding ? "topbar topbarLanding" : "topbar"}>
         <div className="topbarInner">
           <Link to="/" className="brand">
-            <img className="brandLogo" src="/logo.svg" alt="Mate9" />
+            <img className="brandLogo" src="/logo.svg" alt="GetDressed" />
           </Link>
 
           {user && !isLanding ? (
             <nav className="nav">
               <NavLink to="/generate" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-                Генерація стилю
+                Style generation
               </NavLink>
               <NavLink to="/daily-look" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
                 Daily look
               </NavLink>
               <NavLink to="/my-styles" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-                Мої стилі
+                My styles
               </NavLink>
               <NavLink to="/logout" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-                Вихід
+                Sign out
               </NavLink>
             </nav>
           ) : isLanding ? (
@@ -64,9 +64,9 @@ export default function App() {
                   </Link>
                 ) : (
                   <>
-                    Треба залогінитись.{" "}
+                    Please sign in.{" "}
                     <Link className="userLink" to="/login">
-                      Вхід
+                      Sign in
                     </Link>
                   </>
                 )

@@ -158,13 +158,13 @@ export default function GeneratePage() {
       return;
     }
     if (!photoFile) {
-      setApiError("Додай фото, щоб згенерувати стилі.");
+      setApiError("Add a photo to generate styles.");
       return;
     }
 
     const stylesToSend = Array.from(selectedStyleKeys);
     if (!stylesToSend.length) {
-      setApiError("Обери хоча б 1 стилістику.");
+      setApiError("Select at least 1 style.");
       return;
     }
 
@@ -214,15 +214,12 @@ export default function GeneratePage() {
   return (
     <div className="page">
       <div className="card">
-        <h1>Генерація стилю</h1>
-        <p className="muted">
-          Додай фото і отримай образи (AI Multiverse) у 6 стилях.
-        </p>
+        <h1>Style generation</h1>
+        <p className="muted">Add a photo and get 6 AI looks (AI Multiverse).</p>
 
         {!loading && !user ? (
           <div className="alert">
-
-            Потрібен вхід. <a href="#/login">Перейти на логін</a>
+            Sign in required. <a href="#/login">Go to login</a>
           </div>
         ) : null}
 
@@ -235,10 +232,10 @@ export default function GeneratePage() {
 
         <div className="uploader">
           <label className="fieldInline">
-            <span className="fieldLabel">Назва</span>
+            <span className="fieldLabel">Name</span>
             <input
               className="input"
-              placeholder="Напр. 'Мій Multiverse #1'"
+              placeholder="e.g. “My Multiverse #1”"
               value={styleName}
               onChange={(e) => setStyleName(e.target.value)}
             />
@@ -266,7 +263,7 @@ export default function GeneratePage() {
 
           {/*<label className="filePick">*/}
           {/*  <input className="fileInput" type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />*/}
-          {/*  <span>{photoFile ? "Змінити фото" : "Додати фото"}</span>*/}
+          {/*  <span>{photoFile ? "Change photo" : "Add photo"}</span>*/}
           {/*</label>*/}
 
           <button
@@ -274,7 +271,7 @@ export default function GeneratePage() {
             disabled={creating || pending || !photoFile || selectedStyleKeys.size === 0}
             onClick={() => void onGenerate()}
           >
-            {creating ? "Генеруємо..." : pending ? "У процесі..." : "Згенерувати"}
+            {creating ? "Generating..." : pending ? "In progress..." : "Generate"}
           </button>
         </div>
 
@@ -286,7 +283,7 @@ export default function GeneratePage() {
 
         {photoPreview ? (
           <div className="previewBlock">
-            <div className="previewLabel">Вхідне фото</div>
+            <div className="previewLabel">Input photo</div>
             <div className="previewRow" style={{ gridTemplateColumns: "1fr" }}>
               <img className="previewThumb" src={photoPreview} alt="Photo preview" />
             </div>
@@ -295,7 +292,7 @@ export default function GeneratePage() {
 
         {styles.length ? (
           <div className="stylesPick">
-            <div className="previewLabel">Стилістика оточення</div>
+            <div className="previewLabel">Style presets</div>
             <div className="stylesGrid">
               {styles.map((s) => {
                 const checked = selectedStyleKeys.has(s.key);
@@ -339,24 +336,24 @@ export default function GeneratePage() {
                 </div>
                 {j.error ? <div className="jobErr">{j.error}</div> : null}
                 <div className="pair">
-                  <div className="pairFrame">
-                    <div className="pairLabel">До</div>
+                <div className="pairFrame">
+                    <div className="pairLabel">Before</div>
                     {photoPreview || sourceFrontUrl ? (
                       <img className="pairImg" src={photoPreview || sourceFrontUrl || ""} alt="Input photo" />
                     ) : (
-                      <div className="pairEmpty">Вхідне фото</div>
+                      <div className="pairEmpty">Input photo</div>
                     )}
                   </div>
                   <div className="pairFrame">
-                    <div className="pairLabel">Після</div>
+                    <div className="pairLabel">After</div>
                     {j.images?.length ? (
                       <a className="pairLink" href={j.images[0]} target="_blank" rel="noreferrer">
                         <img className="pairImg" src={j.images[0]} alt={j.style_label} loading="lazy" />
                       </a>
                     ) : j.status === "ERROR" ? (
-                      <div className="pairEmpty">Помилка</div>
+                      <div className="pairEmpty">Error</div>
                     ) : (
-                      <div className="pairEmpty">Генерується...</div>
+                      <div className="pairEmpty">Generating...</div>
                     )}
                   </div>
                 </div>
