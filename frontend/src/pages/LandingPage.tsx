@@ -100,9 +100,7 @@ export default function LandingPage() {
               <button className="lbtn primary" onClick={primaryCta}>
                 Try the AI Stylist
               </button>
-              <Link className="lbtn ghost" to={user ? "/generate" : "/login"}>
-                View demo flow
-              </Link>
+
             </div>
             <div className="heroNote">
               Built for women 25–50. Minimal steps. Premium results. <span className="sep">•</span> No styling quizzes.
