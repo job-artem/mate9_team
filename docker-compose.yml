@@ -27,8 +27,15 @@ services:
       DJANGO_DB_NAME: ${POSTGRES_DB:-app}
       DJANGO_DB_USER: ${POSTGRES_USER:-app}
       DJANGO_DB_PASSWORD: ${POSTGRES_PASSWORD:-app}
+      FAL_KEY: ${FAL_KEY:-}
+      FAL_ENDPOINT: ${FAL_ENDPOINT:-fal-ai/flux/dev/image-to-image}
+      FAL_NUM_INFERENCE_STEPS: ${FAL_NUM_INFERENCE_STEPS:-28}
+      FAL_GUIDANCE_SCALE: ${FAL_GUIDANCE_SCALE:-3.5}
+      FAL_IMAGE_SIZE: ${FAL_IMAGE_SIZE:-1024}
+      FAL_SEED: ${FAL_SEED:-0}
     volumes:
       - ./backend:/app
+      - backend_media:/app/media
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:
@@ -40,6 +47,9 @@ services:
       context: ./frontend
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://backend:8000}
+      # Docker Desktop on macOS/Windows: file events may not propagate reliably; polling makes HMR stable.
+      CHOKIDAR_USEPOLLING: "1"
+      WATCHPACK_POLLING: "true"
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
@@ -51,3 +61,4 @@ services:
 volumes:
   postgres_data:
   frontend_node_modules:
+  backend_media:
