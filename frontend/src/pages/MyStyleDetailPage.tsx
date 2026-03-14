@@ -11,6 +11,34 @@ type StyleItem = {
   jobs: Job[];
 };
 
+function lookContextText(styleKey: string, styleLabel: string) {
+  const k = (styleKey || "").toLowerCase();
+  const byKey: Record<string, string> = {
+    tech_founder:
+      "Для пітчу, зустрічі з інвесторами або робочого дня в офісі. Чистий силует, smart casual, виглядає впевнено.",
+    fashion_model:
+      "Для фотосесії, модного івенту або коли хочеш максимально “editorial” вайб. Акцент на подачі та деталях.",
+    streetwear:
+      "Для міста, прогулянок, тусовок, креативної роботи. Oversized/шари, сучасний street look, кінематографічний настрій.",
+    luxury_lifestyle:
+      "Для вечері, готелю, важливої події або “дорогого” виходу. Tailored речі, глянець, статусний вайб.",
+    fitness_athlete:
+      "Для тренування, фітнес-рутини або спортивного контенту. Атлетичний fit, енергія, чіткі лінії.",
+    minimal_aesthetic:
+      "Для щоденного життя, роботи або зустрічей, коли хочеш виглядати чисто і дорого без зайвого. Монохром, баланс.",
+  };
+
+  if (byKey[k]) return byKey[k];
+  const label = (styleLabel || "").toLowerCase();
+  if (label.includes("тех")) return byKey.tech_founder;
+  if (label.includes("фешн")) return byKey.fashion_model;
+  if (label.includes("стріт")) return byKey.streetwear;
+  if (label.includes("лакшері")) return byKey.luxury_lifestyle;
+  if (label.includes("фітнес")) return byKey.fitness_athlete;
+  if (label.includes("мінімал")) return byKey.minimal_aesthetic;
+  return "Цей лук доречний для повсякденних виходів і контенту, коли хочеш швидко перевірити стиль на собі і зберегти найкращі варіанти.";
+}
+
 export default function MyStyleDetailPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -122,6 +150,22 @@ export default function MyStyleDetailPage() {
                         <div className="pairEmpty">Немає результату</div>
                       )}
                     </div>
+                    <div className="pairFrame pairContext" onClick={(e) => e.stopPropagation()}>
+                      <div className="pairLabel">Контекст</div>
+                      <div className="pairContextInner">
+                        <div className="pairContextTitle">Коли цей лук доречний</div>
+                        <div className="pairContextText">{lookContextText(j.style_key, j.style_label)}</div>
+                        <div className="pairContextActions">
+                          <button
+                            className="btn secondary"
+                            type="button"
+                            onClick={() => window.alert("Скоро: тут будемо зберігати ідеї та варіанти покращень для цього луку.")}
+                          >
+                            Додати ідеї
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   {j.error ? <div className="jobErr">{j.error}</div> : null}
                 </div>
@@ -133,4 +177,3 @@ export default function MyStyleDetailPage() {
     </div>
   );
 }
-

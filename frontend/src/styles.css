@@ -801,11 +801,11 @@ h1 {
 .pair {
     margin-top: 10px;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 980px) {
     .pair {
         grid-template-columns: 1fr;
     }
@@ -823,7 +823,7 @@ h1 {
 .pairImg {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     display: block;
     background: rgba(0, 0, 0, 0.2);
 }
@@ -851,6 +851,36 @@ h1 {
 .pairLink {
     display: block;
     height: 100%;
+}
+
+.pairContext {
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.pairContextInner {
+    height: 100%;
+    padding: 42px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pairContextTitle {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.pairContextText {
+    color: var(--muted);
+    line-height: 1.55;
+    font-size: 13px;
+}
+
+.pairContextActions {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
 }
 
 .actions {
