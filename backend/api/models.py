@@ -10,6 +10,7 @@ class Generation(models.Model):
     endpoint = models.CharField(max_length=200)
     source_image_url = models.URLField()
     source_image_sha256 = models.CharField(max_length=64)
+    source_images = models.JSONField(default=dict, blank=True)
 
     def __str__(self) -> str:  # pragma: no cover
         return f"Generation({self.id})"
@@ -33,4 +34,3 @@ class GenerationJob(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover
         return f"Job({self.style_key}, {self.status})"
-

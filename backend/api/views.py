@@ -6,7 +6,15 @@ from django.core.cache import cache
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from .fal_service import get_fal_config, get_result, get_status, sha256_bytes, submit_image_to_image, upload_image_bytes
+from .fal_service import (
+    downscale_image_to_max_megapixels,
+    get_fal_config,
+    get_result,
+    get_status,
+    sha256_bytes,
+    submit_nano_banana_edit,
+    upload_image_bytes,
+)
 from .models import Generation, GenerationJob
 from .style_presets import PRESETS, PRESETS_BY_KEY
 
@@ -36,7 +44,9 @@ def _json_error(message: str, status: int = 400, **extra: Any) -> JsonResponse:
 def create_generation(request: HttpRequest):
     """
     POST multipart/form-data:
-      - image: file
+      - image_front: file
+      - image_left: file
+      - image_right: file
       - styles: optional comma-separated list of style keys
     """
     if request.method != "POST":
@@ -56,23 +66,40 @@ def create_generation(request: HttpRequest):
             status=503,
             hint="Set FAL_KEY in .env and restart docker compose",
         )
+    if cfg.endpoint != "fal-ai/nano-banana-2/edit":
+        return _json_error(
+            "FAL_ENDPOINT is not set to Nano Banana 2 endpoint",
+            status=503,
+            expected="fal-ai/nano-banana-2/edit",
+            got=cfg.endpoint,
+            hint="Update FAL_ENDPOINT in .env and restart backend",
+        )
 
-    if "image" not in request.FILES:
-        return _json_error("Missing 'image' file")
-
-    img = request.FILES["image"]
-    data = img.read()
-    if not data:
-        return _json_error("Empty image upload")
-
-    content_type = getattr(img, "content_type", None) or "image/jpeg"
-    filename = getattr(img, "name", None) or "upload.jpg"
+    required_fields = ["image_front", "image_left", "image_right"]
+    missing = [f for f in required_fields if f not in request.FILES]
+    if missing:
+        return _json_error("Missing image files", missing=missing)
 
     # Ensure fal_client sees auth.
     os.environ["FAL_KEY"] = cfg.key
 
-    uploaded_url = upload_image_bytes(data=data, content_type=content_type, filename=filename)
-    image_hash = sha256_bytes(data)
+    uploaded_urls: dict[str, str] = {}
+    combined_hash_parts: list[str] = []
+    for field in required_fields:
+        img = request.FILES[field]
+        raw = img.read()
+        if not raw:
+            return _json_error("Empty image upload", field=field)
+        filename = getattr(img, "name", None) or f"{field}.jpg"
+        raw, normalized_content_type = downscale_image_to_max_megapixels(
+            data=raw, max_megapixels=cfg.max_megapixels
+        )
+        url = upload_image_bytes(data=raw, content_type=normalized_content_type, filename=filename)
+        uploaded_urls[field] = url
+        combined_hash_parts.append(sha256_bytes(raw))
+
+    image_hash = sha256_bytes(("|".join(combined_hash_parts)).encode("utf-8"))
+    image_urls_list = [uploaded_urls["image_front"], uploaded_urls["image_left"], uploaded_urls["image_right"]]
 
     style_keys_raw = (request.POST.get("styles") or "").strip()
     if style_keys_raw:
@@ -86,22 +113,28 @@ def create_generation(request: HttpRequest):
 
     gen = Generation.objects.create(
         endpoint=cfg.endpoint,
-        source_image_url=uploaded_url,
+        source_image_url=uploaded_urls["image_front"],
         source_image_sha256=image_hash,
+        source_images={
+            "front": uploaded_urls["image_front"],
+            "left": uploaded_urls["image_left"],
+            "right": uploaded_urls["image_right"],
+        },
     )
 
     jobs_out: list[dict[str, Any]] = []
     for key in style_keys:
         preset = PRESETS_BY_KEY[key]
         try:
-            request_id = submit_image_to_image(
+            request_id = submit_nano_banana_edit(
                 endpoint=cfg.endpoint,
-                image_url=uploaded_url,
+                image_urls=image_urls_list,
                 prompt=preset.prompt,
-                num_inference_steps=cfg.num_inference_steps,
-                guidance_scale=cfg.guidance_scale,
-                image_size=cfg.image_size,
                 seed=cfg.seed,
+                resolution=cfg.resolution,
+                aspect_ratio=cfg.aspect_ratio,
+                output_format=cfg.output_format,
+                num_images=cfg.num_images,
             )
         except Exception as e:
             job = GenerationJob.objects.create(
@@ -151,6 +184,7 @@ def create_generation(request: HttpRequest):
                 "created_at": gen.created_at.isoformat(),
                 "endpoint": gen.endpoint,
                 "source_image_url": gen.source_image_url,
+                "source_images": gen.source_images,
             },
             "jobs": jobs_out,
         },
@@ -245,6 +279,7 @@ def get_generation(request: HttpRequest, generation_id):
                 "created_at": gen.created_at.isoformat(),
                 "endpoint": gen.endpoint,
                 "source_image_url": gen.source_image_url,
+                "source_images": gen.source_images,
             },
             "jobs": jobs_out,
             "pending": any_pending,

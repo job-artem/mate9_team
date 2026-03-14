@@ -14,10 +14,12 @@ except Exception:  # pragma: no cover
 class FalConfig:
     key: str
     endpoint: str
-    num_inference_steps: int
-    guidance_scale: float
-    image_size: int
     seed: int
+    max_megapixels: float
+    resolution: str
+    aspect_ratio: str
+    output_format: str
+    num_images: int
 
 
 def get_fal_config() -> FalConfig | None:
@@ -25,18 +27,22 @@ def get_fal_config() -> FalConfig | None:
     if not key:
         return None
 
-    endpoint = os.getenv("FAL_ENDPOINT", "fal-ai/flux/dev/image-to-image").strip()
-    num_steps = int(os.getenv("FAL_NUM_INFERENCE_STEPS", "28"))
-    guidance = float(os.getenv("FAL_GUIDANCE_SCALE", "3.5"))
-    image_size = int(os.getenv("FAL_IMAGE_SIZE", "1024"))
+    endpoint = os.getenv("FAL_ENDPOINT", "fal-ai/nano-banana-2/edit").strip()
     seed = int(os.getenv("FAL_SEED", "0"))
+    max_mp = float(os.getenv("FAL_MAX_MEGAPIXELS", "1"))
+    resolution = os.getenv("FAL_RESOLUTION", "1K").strip() or "1K"
+    aspect_ratio = os.getenv("FAL_ASPECT_RATIO", "2:3").strip() or "2:3"
+    output_format = os.getenv("FAL_OUTPUT_FORMAT", "jpeg").strip() or "jpeg"
+    num_images = int(os.getenv("FAL_NUM_IMAGES", "1"))
     return FalConfig(
         key=key,
         endpoint=endpoint,
-        num_inference_steps=num_steps,
-        guidance_scale=guidance,
-        image_size=image_size,
         seed=seed,
+        max_megapixels=max_mp,
+        resolution=resolution,
+        aspect_ratio=aspect_ratio,
+        output_format=output_format,
+        num_images=num_images,
     )
 
 
@@ -56,23 +62,63 @@ def upload_image_bytes(*, data: bytes, content_type: str, filename: str) -> str:
     return client.upload(data, content_type=content_type, file_name=filename)
 
 
-def submit_image_to_image(
+def downscale_image_to_max_megapixels(*, data: bytes, max_megapixels: float) -> tuple[bytes, str]:
+    """
+    Ensures width*height <= max_megapixels*1e6 by resizing the input image.
+    Returns (jpeg_bytes, content_type).
+
+    This is how we control cost for models priced per output megapixel.
+    """
+    if max_megapixels <= 0:
+        return data, "image/jpeg"
+
+    from PIL import Image  # local import to keep module import light
+
+    max_pixels = int(max_megapixels * 1_000_000)
+    try:
+        with Image.open(io := __import__("io").BytesIO(data)) as im:
+            im = im.convert("RGB")
+            w, h = im.size
+            pixels = w * h
+            if pixels <= max_pixels:
+                # Still normalize to JPEG to keep upload consistent.
+                out = __import__("io").BytesIO()
+                im.save(out, format="JPEG", quality=92, optimize=True)
+                return out.getvalue(), "image/jpeg"
+
+            scale = (max_pixels / float(pixels)) ** 0.5
+            new_w = max(1, int(w * scale))
+            new_h = max(1, int(h * scale))
+            im = im.resize((new_w, new_h), resample=Image.Resampling.LANCZOS)
+            out = __import__("io").BytesIO()
+            im.save(out, format="JPEG", quality=92, optimize=True)
+            return out.getvalue(), "image/jpeg"
+    except Exception:
+        # If PIL can't parse it, just pass through.
+        return data, "image/jpeg"
+
+
+def submit_nano_banana_edit(
     *,
     endpoint: str,
-    image_url: str,
+    image_urls: list[str],
     prompt: str,
-    num_inference_steps: int,
-    guidance_scale: float,
-    image_size: int,
     seed: int,
+    resolution: str,
+    aspect_ratio: str,
+    output_format: str,
+    num_images: int,
 ) -> str:
     client = _require_client()
     args: dict[str, Any] = {
-        "image_url": image_url,
+        "image_urls": image_urls,
         "prompt": prompt,
-        "num_inference_steps": num_inference_steps,
-        "guidance_scale": guidance_scale,
-        "image_size": image_size,
+        "resolution": resolution,
+        "aspect_ratio": aspect_ratio,
+        "output_format": output_format,
+        "num_images": num_images,
+        "safety_tolerance": "2",
+        "sync_mode": False,
     }
     if seed > 0:
         args["seed"] = seed
@@ -100,4 +146,3 @@ def get_result(*, endpoint: str, request_id: str) -> dict[str, Any]:
     client = _require_client()
     res = client.result(endpoint, request_id)
     return res if isinstance(res, dict) else {"result": res}
-

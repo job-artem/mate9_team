@@ -28,11 +28,15 @@ services:
       DJANGO_DB_USER: ${POSTGRES_USER:-app}
       DJANGO_DB_PASSWORD: ${POSTGRES_PASSWORD:-app}
       FAL_KEY: ${FAL_KEY:-}
-      FAL_ENDPOINT: ${FAL_ENDPOINT:-fal-ai/flux/dev/image-to-image}
-      FAL_NUM_INFERENCE_STEPS: ${FAL_NUM_INFERENCE_STEPS:-28}
-      FAL_GUIDANCE_SCALE: ${FAL_GUIDANCE_SCALE:-3.5}
-      FAL_IMAGE_SIZE: ${FAL_IMAGE_SIZE:-1024}
+      # Nano Banana 2 image editing (supports multi-image reference)
+      FAL_ENDPOINT: ${FAL_ENDPOINT:-fal-ai/nano-banana-2/edit}
+      FAL_RESOLUTION: ${FAL_RESOLUTION:-1K}
+      FAL_ASPECT_RATIO: ${FAL_ASPECT_RATIO:-2:3}
+      FAL_OUTPUT_FORMAT: ${FAL_OUTPUT_FORMAT:-jpeg}
+      FAL_NUM_IMAGES: ${FAL_NUM_IMAGES:-1}
       FAL_SEED: ${FAL_SEED:-0}
+      # Downscale uploaded references to reduce upload size/latency (pricing is per output for Nano Banana 2).
+      FAL_MAX_MEGAPIXELS: ${FAL_MAX_MEGAPIXELS:-1}
     volumes:
       - ./backend:/app
       - backend_media:/app/media

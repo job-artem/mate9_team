@@ -35,8 +35,14 @@ export default function GeneratePage() {
   const [error, setError] = useState<string | null>(null);
   const [styles, setStyles] = useState<Style[]>([]);
 
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [frontFile, setFrontFile] = useState<File | null>(null);
+  const [leftFile, setLeftFile] = useState<File | null>(null);
+  const [rightFile, setRightFile] = useState<File | null>(null);
+  const [frontPreview, setFrontPreview] = useState<string | null>(null);
+  const [leftPreview, setLeftPreview] = useState<string | null>(null);
+  const [rightPreview, setRightPreview] = useState<string | null>(null);
+
+  const [selectedStyleKeys, setSelectedStyleKeys] = useState<Set<string>>(new Set());
 
   const [creating, setCreating] = useState(false);
   const [generationId, setGenerationId] = useState<string | null>(null);
@@ -71,7 +77,10 @@ export default function GeneratePage() {
         return (await r.json()) as StylesResponse;
       })
       .then((data) => {
-        if (!cancelled) setStyles(data.styles || []);
+        if (cancelled) return;
+        const list = data.styles || [];
+        setStyles(list);
+        setSelectedStyleKeys(new Set(list.map((s) => s.key)));
       })
       .catch(() => {
         // styles is optional for UI; ignore errors
@@ -82,20 +91,19 @@ export default function GeneratePage() {
     };
   }, []);
 
-  useEffect(() => {
+  const bindPreview = (file: File | null, setter: (url: string | null) => void) => {
     if (!file) {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      return;
+      setter(null);
+      return () => {};
     }
-
     const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file]);
+    setter(url);
+    return () => URL.revokeObjectURL(url);
+  };
+
+  useEffect(() => bindPreview(frontFile, setFrontPreview), [frontFile]);
+  useEffect(() => bindPreview(leftFile, setLeftPreview), [leftFile]);
+  useEffect(() => bindPreview(rightFile, setRightPreview), [rightFile]);
 
   useEffect(() => {
     if (!generationId) return;
@@ -129,8 +137,14 @@ export default function GeneratePage() {
   }, [generationId, pending]);
 
   const onGenerate = async () => {
-    if (!file) {
-      setApiError("Choose a selfie photo first.");
+    if (!frontFile || !leftFile || !rightFile) {
+      setApiError("Завантаж 3 фото: прямо, 45° ліворуч, 45° праворуч.");
+      return;
+    }
+
+    const stylesToSend = Array.from(selectedStyleKeys);
+    if (!stylesToSend.length) {
+      setApiError("Обери хоча б 1 стилістику.");
       return;
     }
 
@@ -142,7 +156,10 @@ export default function GeneratePage() {
 
     try {
       const form = new FormData();
-      form.append("image", file);
+      form.append("image_front", frontFile);
+      form.append("image_left", leftFile);
+      form.append("image_right", rightFile);
+      form.append("styles", stylesToSend.join(","));
 
       const r = await fetch("/api/generations/", { method: "POST", body: form });
       const data = (await r.json()) as CreateGenerationResponse & { error?: string; hint?: string };
@@ -173,7 +190,9 @@ export default function GeneratePage() {
     <div className="page">
       <div className="card">
         <h1>Генерація стилю</h1>
-        <p className="muted">Завантаж selfie і отримай 6 образів (AI Multiverse).</p>
+        <p className="muted">
+          Завантаж 3 фото в повний зріст (прямо, 45° ліворуч, 45° праворуч) і отримай образи (AI Multiverse).
+        </p>
 
         <div className="row" style={{ marginTop: 18 }}>
           <span className="label">API health</span>
@@ -184,17 +203,24 @@ export default function GeneratePage() {
 
         <div className="uploader">
           <label className="filePick">
-            <input
-              className="fileInput"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-            />
-            <span>{file ? "Change photo" : "Upload selfie"}</span>
+            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setFrontFile(e.target.files?.[0] || null)} />
+            <span>{frontFile ? "Прямо: змінити" : "Прямо: завантажити"}</span>
+          </label>
+          <label className="filePick">
+            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setLeftFile(e.target.files?.[0] || null)} />
+            <span>{leftFile ? "45° ліворуч: змінити" : "45° ліворуч: завантажити"}</span>
+          </label>
+          <label className="filePick">
+            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setRightFile(e.target.files?.[0] || null)} />
+            <span>{rightFile ? "45° праворуч: змінити" : "45° праворуч: завантажити"}</span>
           </label>
 
-          <button className="btn" disabled={creating || pending || !file} onClick={() => void onGenerate()}>
-            {creating ? "Generating..." : pending ? "Working..." : "Generate 6 styles"}
+          <button
+            className="btn"
+            disabled={creating || pending || !frontFile || !leftFile || !rightFile || selectedStyleKeys.size === 0}
+            onClick={() => void onGenerate()}
+          >
+            {creating ? "Генеруємо..." : pending ? "У процесі..." : "Згенерувати"}
           </button>
         </div>
 
@@ -204,20 +230,42 @@ export default function GeneratePage() {
           </div>
         ) : null}
 
-        {previewUrl ? (
+        {frontPreview || leftPreview || rightPreview ? (
           <div className="previewBlock">
-            <div className="previewLabel">Input</div>
-            <img className="previewImg" src={previewUrl} alt="Selfie preview" />
+            <div className="previewLabel">Вхідні фото</div>
+            <div className="previewRow">
+              {frontPreview ? <img className="previewThumb" src={frontPreview} alt="Front preview" /> : <div className="previewEmpty">Прямо</div>}
+              {leftPreview ? <img className="previewThumb" src={leftPreview} alt="Left preview" /> : <div className="previewEmpty">45° ліворуч</div>}
+              {rightPreview ? <img className="previewThumb" src={rightPreview} alt="Right preview" /> : <div className="previewEmpty">45° праворуч</div>}
+            </div>
           </div>
         ) : null}
 
         {styles.length ? (
-          <div className="chips">
-            {styles.map((s) => (
-              <span key={s.key} className="chip">
-                {s.label}
-              </span>
-            ))}
+          <div className="stylesPick">
+            <div className="previewLabel">Стилістика оточення</div>
+            <div className="stylesGrid">
+              {styles.map((s) => {
+                const checked = selectedStyleKeys.has(s.key);
+                return (
+                  <label key={s.key} className={checked ? "styleOpt checked" : "styleOpt"}>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        setSelectedStyleKeys((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(s.key)) next.delete(s.key);
+                          else next.add(s.key);
+                          return next;
+                        });
+                      }}
+                    />
+                    <span>{s.label}</span>
+                  </label>
+                );
+              })}
+            </div>
           </div>
         ) : null}
 

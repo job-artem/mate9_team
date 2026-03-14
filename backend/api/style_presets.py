@@ -18,39 +18,36 @@ BASE_PROMPT_PREFIX = (
 
 PRESETS: list[StylePreset] = [
     StylePreset(
-        key="startup_founder",
-        label="Startup founder",
-        prompt=(
-            f"{BASE_PROMPT_PREFIX}, modern smart casual, clean background, softbox lighting"
-        ),
+        key="tech_founder",
+        label="Тех фаундер",
+        prompt=f"{BASE_PROMPT_PREFIX}, tech founder, modern smart casual, clean background, softbox lighting",
     ),
     StylePreset(
-        key="street_fashion",
-        label="Street fashion model",
-        prompt=f"{BASE_PROMPT_PREFIX}, oversized streetwear, urban background, cinematic lighting",
+        key="fashion_model",
+        label="Фешн модель",
+        prompt=f"{BASE_PROMPT_PREFIX}, fashion model, runway-ready look, editorial studio lighting",
+    ),
+    StylePreset(
+        key="streetwear",
+        label="Стрітвір",
+        prompt=f"{BASE_PROMPT_PREFIX}, oversized streetwear outfit, urban background, cinematic lighting",
     ),
     StylePreset(
         key="luxury_lifestyle",
-        label="Luxury lifestyle",
-        prompt=f"{BASE_PROMPT_PREFIX}, tailored luxury suit, hotel lobby vibe, glossy editorial lighting",
+        label="Лакшері лайфстайл",
+        prompt=f"{BASE_PROMPT_PREFIX}, luxury lifestyle, tailored outfit, hotel lobby vibe, glossy editorial lighting",
     ),
     StylePreset(
-        key="fitness_coach",
-        label="Fitness coach",
-        prompt=f"{BASE_PROMPT_PREFIX}, athletic fit outfit, gym studio, dramatic rim light",
+        key="fitness_athlete",
+        label="Фітнес атлет",
+        prompt=f"{BASE_PROMPT_PREFIX}, fitness athlete, athletic fit outfit, gym studio, dramatic rim light",
     ),
     StylePreset(
-        key="minimalist",
-        label="Minimalist",
-        prompt=f"{BASE_PROMPT_PREFIX}, monochrome minimalist outfit, gallery space, soft daylight",
-    ),
-    StylePreset(
-        key="fashion_week",
-        label="Fashion week",
-        prompt=f"{BASE_PROMPT_PREFIX}, avant-garde outfit, runway backstage, flash photography",
+        key="minimal_aesthetic",
+        label="Мінімал естетика",
+        prompt=f"{BASE_PROMPT_PREFIX}, minimal aesthetic, monochrome outfit, gallery space, soft daylight",
     ),
 ]
 
 
 PRESETS_BY_KEY = {p.key: p for p in PRESETS}
-
