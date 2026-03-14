@@ -83,6 +83,19 @@ code {
     letter-spacing: -0.03em;
     color: inherit;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.brandLogo {
+    height: 30px;
+    width: auto;
+    display: block;
+}
+
+.topbarLanding .brandLogo {
+    height: 34px;
 }
 
 .nav {

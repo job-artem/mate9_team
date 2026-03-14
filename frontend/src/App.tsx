@@ -19,7 +19,7 @@ export default function App() {
       <header className={isLanding ? "topbar topbarLanding" : "topbar"}>
         <div className="topbarInner">
           <Link to="/" className="brand">
-            Mate9
+            <img className="brandLogo" src="/logo.svg" alt="Mate9" />
           </Link>
 
           {user && !isLanding ? (
