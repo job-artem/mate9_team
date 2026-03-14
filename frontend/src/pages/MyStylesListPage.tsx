@@ -89,7 +89,7 @@ export default function MyStylesListPage() {
 
         {!items.length && !error ? (
           <p className="muted">
-            Поки порожньо. Перейди в <Link to="/">Генерація стилю</Link> і згенеруй перший сет.
+            Поки порожньо. Перейди в <Link to="/generate">Генерація стилю</Link> і згенеруй перший сет.
           </p>
         ) : null}
 

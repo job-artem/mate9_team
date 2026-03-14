@@ -34,7 +34,7 @@ export default function LoginPage() {
       if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
 
       await refresh();
-      navigate("/");
+      navigate("/generate");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {

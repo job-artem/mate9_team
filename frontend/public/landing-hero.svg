@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f6f0ea"/>
+      <stop offset="0.45" stop-color="#f2f4f7"/>
+      <stop offset="1" stop-color="#eef1f6"/>
+    </linearGradient>
+    <radialGradient id="bokeh1" cx="30%" cy="35%" r="55%">
+      <stop offset="0" stop-color="#d7b39b" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#d7b39b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bokeh2" cx="78%" cy="55%" r="55%">
+      <stop offset="0" stop-color="#9bb7d9" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#9bb7d9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bokeh3" cx="62%" cy="28%" r="45%">
+      <stop offset="0" stop-color="#b6a4d6" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#b6a4d6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur20" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="blur50" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="50"/>
+    </filter>
+    <linearGradient id="street" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#151a23" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#151a23" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="figure" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#232a37" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#232a37" stop-opacity="0.12"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect x="0" y="540" width="1600" height="360" fill="url(#street)"/>
+
+  <g filter="url(#blur50)">
+    <circle cx="470" cy="360" r="290" fill="url(#bokeh1)"/>
+    <circle cx="1200" cy="520" r="320" fill="url(#bokeh2)"/>
+    <circle cx="980" cy="260" r="240" fill="url(#bokeh3)"/>
+  </g>
+
+  <g opacity="0.25" filter="url(#blur20)">
+    <rect x="140" y="170" width="260" height="560" rx="26" fill="#ffffff"/>
+    <rect x="1240" y="210" width="220" height="520" rx="24" fill="#ffffff"/>
+    <rect x="1120" y="260" width="90" height="420" rx="16" fill="#ffffff"/>
+    <rect x="450" y="210" width="120" height="520" rx="22" fill="#ffffff"/>
+  </g>
+
+  <!-- stylized "generated street-style person" silhouette -->
+  <g transform="translate(980 130)">
+    <g opacity="0.95">
+      <ellipse cx="0" cy="126" rx="62" ry="68" fill="url(#figure)"/>
+      <path d="M-120 245c28-68 88-106 120-106s92 38 120 106c14 34 14 64 0 90-22 42-68 64-120 64s-98-22-120-64c-14-26-14-56 0-90z" fill="url(#figure)"/>
+      <path d="M-170 315c12-44 48-70 78-74 10-2 24 2 38 10-12 30-22 74-22 122 0 58 12 120 22 168-28 2-52-8-74-30-36-34-52-108-42-196z" fill="url(#figure)"/>
+      <path d="M170 315c10-88-6-162-42-196-22-22-46-32-74-30 10 48 22 110 22 168 0 48-10 92-22 122 14-8 28-12 38-10 30 4 66 30 78 74z" fill="url(#figure)"/>
+      <path d="M-72 396c-10 102-24 178-38 224-10 30 6 56 38 62 34 6 54-12 58-42 6-44 10-116 10-214 0-20-28-20-30-30-4-18-14-18-38 0z" fill="url(#figure)"/>
+      <path d="M72 396c10 102 24 178 38 224 10 30-6 56-38 62-34 6-54-12-58-42-6-44-10-116-10-214 0-20 28-20 30-30 4-18 14-18 38 0z" fill="url(#figure)"/>
+    </g>
+
+    <!-- hint of outfit "streetwear" blocks -->
+    <g opacity="0.24">
+      <rect x="-118" y="244" width="236" height="72" rx="18" fill="#141a24"/>
+      <rect x="-100" y="324" width="200" height="40" rx="14" fill="#141a24"/>
+      <rect x="-86" y="370" width="172" height="26" rx="12" fill="#141a24"/>
+    </g>
+  </g>
+
+  <!-- subtle film grain -->
+  <g opacity="0.08">
+    <rect width="1600" height="900" fill="#000"/>
+  </g>
+</svg>
+

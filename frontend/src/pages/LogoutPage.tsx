@@ -25,7 +25,7 @@ export default function LogoutPage() {
         <p className="muted">Локальні дані очищені. Авторизацію додамо пізніше.</p>
 
         <div className="actions">
-          <button className="btn" onClick={() => navigate("/")}>
+          <button className="btn" onClick={() => navigate("/generate")}>
             Повернутись до генерації
           </button>
           <Link className="btn secondary" to="/">
