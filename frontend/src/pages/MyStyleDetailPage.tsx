@@ -108,30 +108,6 @@ export default function MyStyleDetailPage() {
 
         {item ? (
           <>
-            <div className="previewBlock">
-              <div className="previewLabel">Input photos</div>
-              <div className="previewRow">
-                {item.source_images?.front ? (
-                  <div className="thumbWrap">
-                    <img className="previewThumb" src={item.source_images.front} alt="front" loading="lazy" />
-                    <div className="thumbLabel">Front</div>
-                  </div>
-                ) : null}
-                {item.source_images?.left ? (
-                  <div className="thumbWrap">
-                    <img className="previewThumb" src={item.source_images.left} alt="left" loading="lazy" />
-                    <div className="thumbLabel">45° left</div>
-                  </div>
-                ) : null}
-                {item.source_images?.right ? (
-                  <div className="thumbWrap">
-                    <img className="previewThumb" src={item.source_images.right} alt="right" loading="lazy" />
-                    <div className="thumbLabel">45° right</div>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-
             <div className="jobs">
               {item.jobs.map((j) => (
                 <div key={j.style_key} className="job">
