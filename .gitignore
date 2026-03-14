@@ -10,6 +10,10 @@ __pycache__/
 frontend/node_modules/
 frontend/dist/
 
+node_modules/
+package.json
+package-lock.json
+
 backend/staticfiles/
 backend/media/
 
