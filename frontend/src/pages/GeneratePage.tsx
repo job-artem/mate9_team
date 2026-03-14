@@ -51,12 +51,8 @@ export default function GeneratePage() {
   const [error, setError] = useState<string | null>(null);
   const [styles, setStyles] = useState<Style[]>([]);
 
-  const [frontFile, setFrontFile] = useState<File | null>(null);
-  const [leftFile, setLeftFile] = useState<File | null>(null);
-  const [rightFile, setRightFile] = useState<File | null>(null);
-  const [frontPreview, setFrontPreview] = useState<string | null>(null);
-  const [leftPreview, setLeftPreview] = useState<string | null>(null);
-  const [rightPreview, setRightPreview] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const [selectedStyleKeys, setSelectedStyleKeys] = useState<Set<string>>(new Set());
 
@@ -119,9 +115,7 @@ export default function GeneratePage() {
     return () => URL.revokeObjectURL(url);
   };
 
-  useEffect(() => bindPreview(frontFile, setFrontPreview), [frontFile]);
-  useEffect(() => bindPreview(leftFile, setLeftPreview), [leftFile]);
-  useEffect(() => bindPreview(rightFile, setRightPreview), [rightFile]);
+  useEffect(() => bindPreview(photoFile, setPhotoPreview), [photoFile]);
 
   useEffect(() => {
     if (!generationId) return;
@@ -163,8 +157,8 @@ export default function GeneratePage() {
       navigate("/login");
       return;
     }
-    if (!frontFile || !leftFile || !rightFile) {
-      setApiError("Завантаж 3 фото: прямо, 45° ліворуч, 45° праворуч.");
+    if (!photoFile) {
+      setApiError("Додай фото, щоб згенерувати стилі.");
       return;
     }
 
@@ -183,9 +177,7 @@ export default function GeneratePage() {
 
     try {
       const form = new FormData();
-      form.append("image_front", frontFile);
-      form.append("image_left", leftFile);
-      form.append("image_right", rightFile);
+      form.append("image", photoFile);
       form.append("styles", stylesToSend.join(","));
       if (styleName.trim()) form.append("name", styleName.trim());
 
@@ -224,7 +216,7 @@ export default function GeneratePage() {
       <div className="card">
         <h1>Генерація стилю</h1>
         <p className="muted">
-          Завантаж 3 фото в повний зріст (прямо, 45° ліворуч, 45° праворуч) і отримай образи (AI Multiverse).
+          Додай фото і отримай образи (AI Multiverse) у 6 стилях.
         </p>
 
         {!loading && !user ? (
@@ -252,21 +244,13 @@ export default function GeneratePage() {
             />
           </label>
           <label className="filePick">
-            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setFrontFile(e.target.files?.[0] || null)} />
-            <span>{frontFile ? "Прямо: змінити" : "Прямо: завантажити"}</span>
-          </label>
-          <label className="filePick">
-            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setLeftFile(e.target.files?.[0] || null)} />
-            <span>{leftFile ? "45° ліворуч: змінити" : "45° ліворуч: завантажити"}</span>
-          </label>
-          <label className="filePick">
-            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setRightFile(e.target.files?.[0] || null)} />
-            <span>{rightFile ? "45° праворуч: змінити" : "45° праворуч: завантажити"}</span>
+            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />
+            <span>{photoFile ? "Змінити фото" : "Додати фото"}</span>
           </label>
 
           <button
             className="btn"
-            disabled={creating || pending || !frontFile || !leftFile || !rightFile || selectedStyleKeys.size === 0}
+            disabled={creating || pending || !photoFile || selectedStyleKeys.size === 0}
             onClick={() => void onGenerate()}
           >
             {creating ? "Генеруємо..." : pending ? "У процесі..." : "Згенерувати"}
@@ -279,13 +263,11 @@ export default function GeneratePage() {
           </div>
         ) : null}
 
-        {frontPreview || leftPreview || rightPreview ? (
+        {photoPreview ? (
           <div className="previewBlock">
-            <div className="previewLabel">Вхідні фото</div>
-            <div className="previewRow">
-              {frontPreview ? <img className="previewThumb" src={frontPreview} alt="Front preview" /> : <div className="previewEmpty">Прямо</div>}
-              {leftPreview ? <img className="previewThumb" src={leftPreview} alt="Left preview" /> : <div className="previewEmpty">45° ліворуч</div>}
-              {rightPreview ? <img className="previewThumb" src={rightPreview} alt="Right preview" /> : <div className="previewEmpty">45° праворуч</div>}
+            <div className="previewLabel">Вхідне фото</div>
+            <div className="previewRow" style={{ gridTemplateColumns: "1fr" }}>
+              <img className="previewThumb" src={photoPreview} alt="Photo preview" />
             </div>
           </div>
         ) : null}
@@ -338,8 +320,8 @@ export default function GeneratePage() {
                 <div className="pair">
                   <div className="pairFrame">
                     <div className="pairLabel">До</div>
-                    {frontPreview || sourceFrontUrl ? (
-                      <img className="pairImg" src={frontPreview || sourceFrontUrl || ""} alt="Input front" />
+                    {photoPreview || sourceFrontUrl ? (
+                      <img className="pairImg" src={photoPreview || sourceFrontUrl || ""} alt="Input photo" />
                     ) : (
                       <div className="pairEmpty">Вхідне фото</div>
                     )}

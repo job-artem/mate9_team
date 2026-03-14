@@ -253,9 +253,10 @@ def my_style_detail(request: HttpRequest, generation_id):
 def create_generation(request: HttpRequest):
     """
     POST multipart/form-data:
-      - image_front: file
-      - image_left: file
-      - image_right: file
+      - image: file (preferred, single-photo flow)
+      - image_front: file (legacy alias for image)
+      - image_left: optional file
+      - image_right: optional file
       - styles: optional comma-separated list of style keys
     """
     if request.method != "POST":
@@ -288,17 +289,20 @@ def create_generation(request: HttpRequest):
             hint="Update FAL_ENDPOINT in .env and restart backend",
         )
 
-    required_fields = ["image_front", "image_left", "image_right"]
-    missing = [f for f in required_fields if f not in request.FILES]
-    if missing:
-        return _json_error("Missing image files", missing=missing)
+    # Support a 1-photo flow (image/image_front) and an optional 3-photo flow.
+    front_field = "image" if "image" in request.FILES else "image_front"
+    if front_field not in request.FILES:
+        return _json_error("Missing image file", missing=["image"])
+
+    optional_fields = ["image_left", "image_right"]
+    present_fields = [front_field] + [f for f in optional_fields if f in request.FILES]
 
     # Ensure fal_client sees auth.
     os.environ["FAL_KEY"] = cfg.key
 
     uploaded_urls: dict[str, str] = {}
     combined_hash_parts: list[str] = []
-    for field in required_fields:
+    for field in present_fields:
         img = request.FILES[field]
         raw = img.read()
         if not raw:
@@ -312,7 +316,11 @@ def create_generation(request: HttpRequest):
         combined_hash_parts.append(sha256_bytes(raw))
 
     image_hash = sha256_bytes(("|".join(combined_hash_parts)).encode("utf-8"))
-    image_urls_list = [uploaded_urls["image_front"], uploaded_urls["image_left"], uploaded_urls["image_right"]]
+    image_urls_list = [uploaded_urls[front_field]]
+    if "image_left" in uploaded_urls:
+        image_urls_list.append(uploaded_urls["image_left"])
+    if "image_right" in uploaded_urls:
+        image_urls_list.append(uploaded_urls["image_right"])
 
     style_keys_raw = (request.POST.get("styles") or "").strip()
     style_name = (request.POST.get("name") or "").strip()
@@ -325,16 +333,17 @@ def create_generation(request: HttpRequest):
     if unknown:
         return _json_error("Unknown style keys", unknown=unknown)
 
+    front_url = uploaded_urls[front_field]
     gen = Generation.objects.create(
         user=request.user,
         name=style_name,
         endpoint=cfg.endpoint,
-        source_image_url=uploaded_urls["image_front"],
+        source_image_url=front_url,
         source_image_sha256=image_hash,
         source_images={
-            "front": uploaded_urls["image_front"],
-            "left": uploaded_urls["image_left"],
-            "right": uploaded_urls["image_right"],
+            "front": front_url,
+            **({"left": uploaded_urls["image_left"]} if "image_left" in uploaded_urls else {}),
+            **({"right": uploaded_urls["image_right"]} if "image_right" in uploaded_urls else {}),
         },
     )
 
