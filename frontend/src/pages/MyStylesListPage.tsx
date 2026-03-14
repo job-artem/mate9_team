@@ -113,8 +113,10 @@ export default function MyStylesListPage() {
                   }}
                 >
                   <div className="stylesRowLeft">
-                    <div className="stylesRowTitle">{it.name}</div>
-                    <div className="stylesRowMeta">{new Date(it.created_at).toLocaleString()}</div>
+                    <div className="stylesRowInfo">
+                      <div className="stylesRowTitle">{it.name}</div>
+                      <div className="stylesRowMeta">{new Date(it.created_at).toLocaleString()}</div>
+                    </div>
                     <div className="stylesRowImg">
                       {it.source_images?.front ? (
                         <img src={it.source_images.front} alt="input front" loading="lazy" />
