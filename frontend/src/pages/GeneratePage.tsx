@@ -229,16 +229,17 @@ export default function GeneratePage() {
 
         {!loading && !user ? (
           <div className="alert">
+
             Потрібен вхід. <a href="#/login">Перейти на логін</a>
           </div>
         ) : null}
 
-        <div className="row" style={{ marginTop: 18 }}>
-          <span className="label">API health</span>
-          <span className="value">
-            {error ? `Error: ${error}` : health ? (health.ok ? "OK" : "NOT OK") : "Loading..."}
-          </span>
-        </div>
+        {/*<div className="row" style={{ marginTop: 18 }}>*/}
+        {/*  <span className="label">API health</span>*/}
+        {/*  <span className="value">*/}
+        {/*    {error ? `Error: ${error}` : health ? (health.ok ? "OK" : "NOT OK") : "Loading..."}*/}
+        {/*  </span>*/}
+        {/*</div>*/}
 
         <div className="uploader">
           <label className="fieldInline">
