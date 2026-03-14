@@ -162,6 +162,7 @@ def auth_me(request: HttpRequest):
     )
 
 
+@csrf_exempt
 def my_styles(request: HttpRequest):
     unauth = _require_auth(request)
     if unauth:
@@ -198,17 +199,33 @@ def my_styles(request: HttpRequest):
     return JsonResponse({"styles": out})
 
 
+@csrf_exempt
 def my_style_detail(request: HttpRequest, generation_id):
     unauth = _require_auth(request)
     if unauth:
         return unauth
-    if request.method != "GET":
+    if request.method not in ("GET", "PATCH", "DELETE"):
         return _json_error("Method not allowed", status=405)
 
     try:
         gen = Generation.objects.prefetch_related("jobs").get(id=generation_id, user=request.user)
     except Generation.DoesNotExist:
         return _json_error("Not found", status=404)
+
+    if request.method == "DELETE":
+        gen.delete()
+        return JsonResponse({"ok": True})
+
+    if request.method == "PATCH":
+        data = _read_json(request)
+        if data is None:
+            return _json_error("Invalid JSON")
+        name = str(data.get("name") or "").strip()
+        if not name:
+            return _json_error("name is required")
+        gen.name = name
+        gen.save(update_fields=["name"])
+        return JsonResponse({"ok": True, "style": {"id": str(gen.id), "name": gen.name}})
 
     return JsonResponse(
         {

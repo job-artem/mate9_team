@@ -16,6 +16,7 @@ export default function MyStylesListPage() {
   const navigate = useNavigate();
   const [items, setItems] = useState<StyleItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -43,6 +44,37 @@ export default function MyStylesListPage() {
     };
   }, [user, loading, navigate]);
 
+  const renameStyle = async (id: string, currentName: string) => {
+    const next = window.prompt("Нова назва стилю", currentName);
+    if (!next || next.trim() === currentName) return;
+    setBusyId(id);
+    try {
+      const r = await fetch(`/api/my-styles/${id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: next.trim() }),
+      });
+      if (r.status === 401) throw new Error("Unauthorized");
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, name: next.trim() } : it)));
+    } finally {
+      setBusyId((prev) => (prev === id ? null : prev));
+    }
+  };
+
+  const deleteStyle = async (id: string, name: string) => {
+    if (!window.confirm(`Видалити стиль “${name}”?`)) return;
+    setBusyId(id);
+    try {
+      const r = await fetch(`/api/my-styles/${id}/`, { method: "DELETE" });
+      if (r.status === 401) throw new Error("Unauthorized");
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      setItems((prev) => prev.filter((it) => it.id !== id));
+    } finally {
+      setBusyId((prev) => (prev === id ? null : prev));
+    }
+  };
+
   return (
     <div className="page">
       <div className="card">
@@ -69,11 +101,16 @@ export default function MyStylesListPage() {
                 .slice(0, 6);
 
               return (
-                <button
+                <div
                   key={it.id}
                   className="stylesRow"
                   onClick={() => navigate(`/my-styles/${it.id}`)}
                   title="Open details"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") navigate(`/my-styles/${it.id}`);
+                  }}
                 >
                   <div className="stylesRowLeft">
                     <div className="stylesRowTitle">{it.name}</div>
@@ -87,8 +124,8 @@ export default function MyStylesListPage() {
                     </div>
                   </div>
 
-                  <div className="stylesRowRight">
-                    <div className="stylesRowGrid">
+                  <div className="stylesRowThumbs">
+                    <div className="stylesRowGrid" aria-label="Generated previews">
                       {previews.map((p) => (
                         <div key={p.key} className="stylesThumb" title={p.label}>
                           {p.url ? <img src={p.url} alt={p.label} loading="lazy" /> : <div className="stylesThumbEmpty">{p.status}</div>}
@@ -97,7 +134,28 @@ export default function MyStylesListPage() {
                       ))}
                     </div>
                   </div>
-                </button>
+
+                  <div className="stylesRowActions" aria-label="Row actions" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="rowActionBtn"
+                      type="button"
+                      disabled={busyId === it.id}
+                      onClick={() => renameStyle(it.id, it.name)}
+                      title="Rename"
+                    >
+                      Змінити
+                    </button>
+                    <button
+                      className="rowActionBtn danger"
+                      type="button"
+                      disabled={busyId === it.id}
+                      onClick={() => deleteStyle(it.id, it.name)}
+                      title="Delete"
+                    >
+                      Видалити
+                    </button>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -106,4 +164,3 @@ export default function MyStylesListPage() {
     </div>
   );
 }
-
