@@ -17,7 +17,6 @@ from .fal_service import (
     sha256_bytes,
     submit_nano_banana_edit,
     upload_image_bytes,
-    make_three_view_collage,
 )
 from .models import Generation, GenerationJob
 from .style_presets import PRESETS, PRESETS_BY_KEY
@@ -281,7 +280,6 @@ def create_generation(request: HttpRequest):
     os.environ["FAL_KEY"] = cfg.key
 
     uploaded_urls: dict[str, str] = {}
-    bytes_by_field: dict[str, bytes] = {}
     combined_hash_parts: list[str] = []
     for field in required_fields:
         img = request.FILES[field]
@@ -292,18 +290,12 @@ def create_generation(request: HttpRequest):
         raw, normalized_content_type = downscale_image_to_max_megapixels(
             data=raw, max_megapixels=cfg.max_megapixels
         )
-        bytes_by_field[field] = raw
         url = upload_image_bytes(data=raw, content_type=normalized_content_type, filename=filename)
         uploaded_urls[field] = url
         combined_hash_parts.append(sha256_bytes(raw))
 
     image_hash = sha256_bytes(("|".join(combined_hash_parts)).encode("utf-8"))
-    collage_bytes = make_three_view_collage(
-        front_jpeg=bytes_by_field["image_front"],
-        left_jpeg=bytes_by_field["image_left"],
-        right_jpeg=bytes_by_field["image_right"],
-    )
-    collage_url = upload_image_bytes(data=collage_bytes, content_type="image/jpeg", filename="three_view_collage.jpg")
+    image_urls_list = [uploaded_urls["image_front"], uploaded_urls["image_left"], uploaded_urls["image_right"]]
 
     style_keys_raw = (request.POST.get("styles") or "").strip()
     style_name = (request.POST.get("name") or "").strip()
@@ -320,13 +312,12 @@ def create_generation(request: HttpRequest):
         user=request.user,
         name=style_name,
         endpoint=cfg.endpoint,
-        source_image_url=collage_url,
+        source_image_url=uploaded_urls["image_front"],
         source_image_sha256=image_hash,
         source_images={
             "front": uploaded_urls["image_front"],
             "left": uploaded_urls["image_left"],
             "right": uploaded_urls["image_right"],
-            "collage": collage_url,
         },
     )
 
@@ -336,7 +327,7 @@ def create_generation(request: HttpRequest):
         try:
             request_id = submit_nano_banana_edit(
                 endpoint=cfg.endpoint,
-                image_url=collage_url,
+                image_urls=image_urls_list,
                 prompt=preset.prompt,
                 seed=cfg.seed,
                 resolution=cfg.resolution,
@@ -626,7 +617,7 @@ def create_daily_look(request: HttpRequest):
         try:
             request_id = submit_nano_banana_edit(
                 endpoint=cfg.endpoint,
-                image_url=base_url,
+                image_urls=[base_url],
                 prompt=prompt,
                 seed=(cfg.seed + i) if cfg.seed > 0 else 0,
                 resolution=cfg.resolution,
