@@ -1,10 +1,13 @@
 import os
+import json
 from typing import Any
 
 from django.http import HttpRequest, JsonResponse
 from django.core.cache import cache
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import get_user_model
 
 from .fal_service import (
     downscale_image_to_max_megapixels,
@@ -40,6 +43,154 @@ def _json_error(message: str, status: int = 400, **extra: Any) -> JsonResponse:
     return JsonResponse(payload, status=status)
 
 
+def _require_auth(request: HttpRequest) -> JsonResponse | None:
+    if not request.user.is_authenticated:
+        return _json_error("Unauthorized", status=401)
+    return None
+
+
+def _read_json(request: HttpRequest) -> dict[str, Any] | None:
+    try:
+        body = request.body.decode("utf-8") if request.body else ""
+        return json.loads(body) if body else {}
+    except Exception:
+        return None
+
+
+@csrf_exempt
+def auth_register(request: HttpRequest):
+    if request.method != "POST":
+        return _json_error("Method not allowed", status=405)
+
+    data = _read_json(request)
+    if data is None:
+        return _json_error("Invalid JSON")
+
+    username = str(data.get("username") or "").strip()
+    password = str(data.get("password") or "").strip()
+    first_name = str(data.get("first_name") or "").strip()
+    last_name = str(data.get("last_name") or "").strip()
+
+    if not username or not password:
+        return _json_error("username and password are required")
+    UserModel = get_user_model()
+    if UserModel.objects.filter(username=username).exists():
+        return _json_error("username already exists", status=409)
+
+    user = UserModel.objects.create_user(
+        username=username, password=password, first_name=first_name, last_name=last_name
+    )
+    login(request, user)
+    return JsonResponse(
+        {"user": {"username": user.username, "first_name": user.first_name, "last_name": user.last_name}},
+        status=201,
+    )
+
+
+@csrf_exempt
+def auth_login(request: HttpRequest):
+    if request.method != "POST":
+        return _json_error("Method not allowed", status=405)
+
+    data = _read_json(request)
+    if data is None:
+        return _json_error("Invalid JSON")
+
+    username = str(data.get("username") or "").strip()
+    password = str(data.get("password") or "").strip()
+    user = authenticate(request, username=username, password=password)
+    if user is None:
+        return _json_error("Invalid credentials", status=401)
+
+    login(request, user)
+    return JsonResponse({"user": {"username": user.username, "first_name": user.first_name, "last_name": user.last_name}})
+
+
+@csrf_exempt
+def auth_logout(request: HttpRequest):
+    if request.method != "POST":
+        return _json_error("Method not allowed", status=405)
+    logout(request)
+    return JsonResponse({"ok": True})
+
+
+def auth_me(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return _json_error("Unauthorized", status=401)
+    u = request.user
+    return JsonResponse({"user": {"username": u.username, "first_name": u.first_name, "last_name": u.last_name}})
+
+
+def my_styles(request: HttpRequest):
+    unauth = _require_auth(request)
+    if unauth:
+        return unauth
+    if request.method != "GET":
+        return _json_error("Method not allowed", status=405)
+
+    gens = (
+        Generation.objects.filter(user=request.user)
+        .prefetch_related("jobs")
+        .order_by("-created_at")
+    )
+    out: list[dict[str, Any]] = []
+    for gen in gens:
+        out.append(
+            {
+                "id": str(gen.id),
+                "name": gen.name or f"Style {gen.created_at.strftime('%Y-%m-%d %H:%M')}",
+                "created_at": gen.created_at.isoformat(),
+                "source_images": gen.source_images,
+                "jobs": [
+                    {
+                        "style_key": j.style_key,
+                        "style_label": j.style_label,
+                        "status": j.status,
+                        "images": j.result_images,
+                        "error": j.error,
+                    }
+                    for j in gen.jobs.all().order_by("created_at")
+                ],
+            }
+        )
+
+    return JsonResponse({"styles": out})
+
+
+def my_style_detail(request: HttpRequest, generation_id):
+    unauth = _require_auth(request)
+    if unauth:
+        return unauth
+    if request.method != "GET":
+        return _json_error("Method not allowed", status=405)
+
+    try:
+        gen = Generation.objects.prefetch_related("jobs").get(id=generation_id, user=request.user)
+    except Generation.DoesNotExist:
+        return _json_error("Not found", status=404)
+
+    return JsonResponse(
+        {
+            "style": {
+                "id": str(gen.id),
+                "name": gen.name or f"Style {gen.created_at.strftime('%Y-%m-%d %H:%M')}",
+                "created_at": gen.created_at.isoformat(),
+                "source_images": gen.source_images,
+                "jobs": [
+                    {
+                        "style_key": j.style_key,
+                        "style_label": j.style_label,
+                        "status": j.status,
+                        "images": j.result_images,
+                        "error": j.error,
+                    }
+                    for j in gen.jobs.all().order_by("created_at")
+                ],
+            }
+        }
+    )
+
+
 @csrf_exempt
 def create_generation(request: HttpRequest):
     """
@@ -51,6 +202,10 @@ def create_generation(request: HttpRequest):
     """
     if request.method != "POST":
         return _json_error("Method not allowed", status=405)
+
+    unauth = _require_auth(request)
+    if unauth:
+        return unauth
 
     ip = request.META.get("REMOTE_ADDR") or "unknown"
     rate_key = f"rate:generations:{ip}"
@@ -102,6 +257,7 @@ def create_generation(request: HttpRequest):
     image_urls_list = [uploaded_urls["image_front"], uploaded_urls["image_left"], uploaded_urls["image_right"]]
 
     style_keys_raw = (request.POST.get("styles") or "").strip()
+    style_name = (request.POST.get("name") or "").strip()
     if style_keys_raw:
         style_keys = [s.strip() for s in style_keys_raw.split(",") if s.strip()]
     else:
@@ -112,6 +268,8 @@ def create_generation(request: HttpRequest):
         return _json_error("Unknown style keys", unknown=unknown)
 
     gen = Generation.objects.create(
+        user=request.user,
+        name=style_name,
         endpoint=cfg.endpoint,
         source_image_url=uploaded_urls["image_front"],
         source_image_sha256=image_hash,
@@ -209,6 +367,10 @@ def get_generation(request: HttpRequest, generation_id):
     if request.method != "GET":
         return _json_error("Method not allowed", status=405)
 
+    unauth = _require_auth(request)
+    if unauth:
+        return unauth
+
     cfg = get_fal_config()
     if cfg is None:
         return _json_error("FAL_KEY is not configured on backend", status=503)
@@ -216,7 +378,7 @@ def get_generation(request: HttpRequest, generation_id):
     os.environ["FAL_KEY"] = cfg.key
 
     try:
-        gen = Generation.objects.get(id=generation_id)
+        gen = Generation.objects.get(id=generation_id, user=request.user)
     except Generation.DoesNotExist:
         return _json_error("Generation not found", status=404)
 

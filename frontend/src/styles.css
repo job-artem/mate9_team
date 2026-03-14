@@ -76,6 +76,38 @@ code {
   align-items: center;
 }
 
+.userBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.userIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: rgba(125, 211, 252, 0.12);
+  color: rgba(209, 250, 229, 0.95);
+  border: 1px solid rgba(125, 211, 252, 0.25);
+}
+
+.userName {
+  color: var(--text);
+  font-size: 13px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .navLink {
   color: var(--muted);
   text-decoration: none;
@@ -156,6 +188,43 @@ h1 {
   flex-wrap: wrap;
 }
 
+.fieldInline {
+  display: grid;
+  gap: 6px;
+  min-width: min(360px, 100%);
+  flex: 1 1 280px;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.fieldLabel {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.input {
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: rgba(125, 211, 252, 0.35);
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.12);
+}
+
 .fileInput {
   position: absolute;
   inset: 0;
@@ -226,6 +295,53 @@ h1 {
   object-fit: cover;
   border-radius: 14px;
   border: 1px solid var(--border);
+}
+
+.thumbWrap {
+  position: relative;
+}
+
+.thumbLabel {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 238, 252, 0.18);
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.stylesList {
+  margin-top: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.styleCard {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.styleCardHead {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.styleName {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.styleMeta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .previewEmpty {

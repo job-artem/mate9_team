@@ -1,17 +1,20 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth";
 
 export default function LogoutPage() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
-    // No auth in MVP, but this makes the menu item meaningful.
-    try {
-      localStorage.clear();
-      sessionStorage.clear();
-    } catch {
-      // ignore
-    }
+    void logout().finally(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {
+        // ignore
+      }
+    });
   }, []);
 
   return (
@@ -32,4 +35,3 @@ export default function LogoutPage() {
     </div>
   );
 }
-

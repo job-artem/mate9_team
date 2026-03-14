@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth";
 
 type Health = { ok: boolean };
 
@@ -31,6 +33,8 @@ type GenerationStatusResponse = {
 };
 
 export default function GeneratePage() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [health, setHealth] = useState<Health | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [styles, setStyles] = useState<Style[]>([]);
@@ -49,6 +53,7 @@ export default function GeneratePage() {
   const [jobs, setJobs] = useState<GenerationStatusResponse["jobs"]>([]);
   const [pending, setPending] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [styleName, setStyleName] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -113,6 +118,10 @@ export default function GeneratePage() {
     const tick = async () => {
       try {
         const r = await fetch(`/api/generations/${generationId}/`);
+        if (r.status === 401) {
+          navigate("/login");
+          return;
+        }
         const data = (await r.json()) as GenerationStatusResponse & { error?: string };
         if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
         if (cancelled) return;
@@ -160,9 +169,14 @@ export default function GeneratePage() {
       form.append("image_left", leftFile);
       form.append("image_right", rightFile);
       form.append("styles", stylesToSend.join(","));
+      if (styleName.trim()) form.append("name", styleName.trim());
 
       const r = await fetch("/api/generations/", { method: "POST", body: form });
       const data = (await r.json()) as CreateGenerationResponse & { error?: string; hint?: string };
+      if (r.status === 401) {
+        navigate("/login");
+        return;
+      }
       if (!r.ok) throw new Error([data.error, data.hint].filter(Boolean).join(". ") || `HTTP ${r.status}`);
 
       setGenerationId(data.generation.id);
@@ -194,6 +208,12 @@ export default function GeneratePage() {
           Завантаж 3 фото в повний зріст (прямо, 45° ліворуч, 45° праворуч) і отримай образи (AI Multiverse).
         </p>
 
+        {!loading && !user ? (
+          <div className="alert">
+            Потрібен вхід. <a href="#/login">Перейти на логін</a>
+          </div>
+        ) : null}
+
         <div className="row" style={{ marginTop: 18 }}>
           <span className="label">API health</span>
           <span className="value">
@@ -202,6 +222,15 @@ export default function GeneratePage() {
         </div>
 
         <div className="uploader">
+          <label className="fieldInline">
+            <span className="fieldLabel">Назва</span>
+            <input
+              className="input"
+              placeholder="Напр. 'Мій Multiverse #1'"
+              value={styleName}
+              onChange={(e) => setStyleName(e.target.value)}
+            />
+          </label>
           <label className="filePick">
             <input className="fileInput" type="file" accept="image/*" onChange={(e) => setFrontFile(e.target.files?.[0] || null)} />
             <span>{frontFile ? "Прямо: змінити" : "Прямо: завантажити"}</span>
