@@ -2,6 +2,7 @@ import { Link, NavLink, Route, Routes } from "react-router-dom";
 import GeneratePage from "./pages/GeneratePage";
 import MyStylesListPage from "./pages/MyStylesListPage";
 import MyStyleDetailPage from "./pages/MyStyleDetailPage";
+import DailyLookPage from "./pages/DailyLookPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
 import { useAuth } from "./auth";
@@ -19,6 +20,9 @@ export default function App() {
             <nav className="nav">
               <NavLink to="/" end className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
                 Генерація стилю
+              </NavLink>
+              <NavLink to="/daily-look" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
+                Daily look
               </NavLink>
               <NavLink to="/my-styles" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
                 Мої стилі
@@ -56,6 +60,7 @@ export default function App() {
       <main className="main">
         <Routes>
           <Route path="/" element={<GeneratePage />} />
+          <Route path="/daily-look" element={<DailyLookPage />} />
           <Route path="/my-styles" element={<MyStylesListPage />} />
           <Route path="/my-styles/:id" element={<MyStyleDetailPage />} />
           <Route path="/login" element={<LoginPage />} />

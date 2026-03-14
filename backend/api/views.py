@@ -17,6 +17,7 @@ from .fal_service import (
     sha256_bytes,
     submit_nano_banana_edit,
     upload_image_bytes,
+    make_three_view_collage,
 )
 from .models import Generation, GenerationJob
 from .style_presets import PRESETS, PRESETS_BY_KEY
@@ -280,6 +281,7 @@ def create_generation(request: HttpRequest):
     os.environ["FAL_KEY"] = cfg.key
 
     uploaded_urls: dict[str, str] = {}
+    bytes_by_field: dict[str, bytes] = {}
     combined_hash_parts: list[str] = []
     for field in required_fields:
         img = request.FILES[field]
@@ -290,12 +292,18 @@ def create_generation(request: HttpRequest):
         raw, normalized_content_type = downscale_image_to_max_megapixels(
             data=raw, max_megapixels=cfg.max_megapixels
         )
+        bytes_by_field[field] = raw
         url = upload_image_bytes(data=raw, content_type=normalized_content_type, filename=filename)
         uploaded_urls[field] = url
         combined_hash_parts.append(sha256_bytes(raw))
 
     image_hash = sha256_bytes(("|".join(combined_hash_parts)).encode("utf-8"))
-    image_urls_list = [uploaded_urls["image_front"], uploaded_urls["image_left"], uploaded_urls["image_right"]]
+    collage_bytes = make_three_view_collage(
+        front_jpeg=bytes_by_field["image_front"],
+        left_jpeg=bytes_by_field["image_left"],
+        right_jpeg=bytes_by_field["image_right"],
+    )
+    collage_url = upload_image_bytes(data=collage_bytes, content_type="image/jpeg", filename="three_view_collage.jpg")
 
     style_keys_raw = (request.POST.get("styles") or "").strip()
     style_name = (request.POST.get("name") or "").strip()
@@ -312,12 +320,13 @@ def create_generation(request: HttpRequest):
         user=request.user,
         name=style_name,
         endpoint=cfg.endpoint,
-        source_image_url=uploaded_urls["image_front"],
+        source_image_url=collage_url,
         source_image_sha256=image_hash,
         source_images={
             "front": uploaded_urls["image_front"],
             "left": uploaded_urls["image_left"],
             "right": uploaded_urls["image_right"],
+            "collage": collage_url,
         },
     )
 
@@ -327,7 +336,7 @@ def create_generation(request: HttpRequest):
         try:
             request_id = submit_nano_banana_edit(
                 endpoint=cfg.endpoint,
-                image_urls=image_urls_list,
+                image_url=collage_url,
                 prompt=preset.prompt,
                 seed=cfg.seed,
                 resolution=cfg.resolution,
@@ -381,6 +390,7 @@ def create_generation(request: HttpRequest):
             "generation": {
                 "id": str(gen.id),
                 "created_at": gen.created_at.isoformat(),
+                "name": gen.name,
                 "endpoint": gen.endpoint,
                 "source_image_url": gen.source_image_url,
                 "source_images": gen.source_images,
@@ -480,6 +490,7 @@ def get_generation(request: HttpRequest, generation_id):
             "generation": {
                 "id": str(gen.id),
                 "created_at": gen.created_at.isoformat(),
+                "name": gen.name,
                 "endpoint": gen.endpoint,
                 "source_image_url": gen.source_image_url,
                 "source_images": gen.source_images,
@@ -487,4 +498,194 @@ def get_generation(request: HttpRequest, generation_id):
             "jobs": jobs_out,
             "pending": any_pending,
         }
+    )
+
+
+_WEATHER_LABELS_UA = {
+    "sunny": "Сонячно",
+    "cloudy": "Хмарно",
+    "rain": "Дощ",
+    "snow": "Сніг",
+    "windy": "Вітряно",
+    "hot": "Спека",
+    "cold": "Холодно",
+    "fog": "Туман",
+}
+
+_OCCASION_LABELS_UA = {
+    "casual_day": "Звичайний день",
+    "business_meeting": "Бізнес зустріч",
+    "business_party": "Бізнес вечірка",
+    "interview": "Співбесіда",
+    "conference": "Конференція",
+    "date": "Побачення",
+    "birthday": "День народження",
+    "holiday": "Свято",
+    "wedding_guest": "Весілля (гість)",
+    "funeral": "Похорони",
+    "graduation": "Випускний",
+    "gym": "Тренування",
+    "travel": "Подорож",
+    "night_out": "Вечір з друзями",
+}
+
+
+def _daily_prompt_variant(location: str, weather_key: str, occasion_key: str, idx: int) -> str:
+    weather = _WEATHER_LABELS_UA.get(weather_key, weather_key)
+    occasion = _OCCASION_LABELS_UA.get(occasion_key, occasion_key)
+    base = (
+        "full body photo of the same person, keep identity, "
+        "high-end fashion editorial, realistic fabric texture, "
+        "professional fashion photography, sharp focus, premium color grading, "
+        f"location vibe: {location}, "
+        f"weather: {weather}, "
+        f"occasion: {occasion}"
+    )
+
+    variants = [
+        "safe timeless outfit, neutral palette, clean silhouette",
+        "smart look, tailored pieces, minimal accessories",
+        "statement look, one bold accent, street photography vibe",
+        "comfort-first look, layering, weather-appropriate outerwear",
+        "minimal aesthetic, monochrome, gallery-like styling",
+    ]
+    extra = variants[(idx - 1) % len(variants)]
+    return f"{base}, {extra}"
+
+
+@csrf_exempt
+def create_daily_look(request: HttpRequest):
+    """
+    POST multipart/form-data:
+      - image: file (base photo)
+      - location: string (selected location)
+      - weather: string key
+      - occasion: string key
+    """
+    if request.method != "POST":
+        return _json_error("Method not allowed", status=405)
+
+    unauth = _require_auth(request)
+    if unauth:
+        return unauth
+
+    cfg = get_fal_config()
+    if cfg is None:
+        return _json_error("FAL_KEY is not configured on backend", status=503)
+    if cfg.endpoint != "fal-ai/nano-banana-2/edit":
+        return _json_error(
+            "FAL_ENDPOINT is not set to Nano Banana 2 endpoint",
+            status=503,
+            expected="fal-ai/nano-banana-2/edit",
+            got=cfg.endpoint,
+        )
+
+    if "image" not in request.FILES:
+        return _json_error("Missing 'image' file")
+
+    location = (request.POST.get("location") or "").strip()
+    weather_key = (request.POST.get("weather") or "").strip()
+    occasion_key = (request.POST.get("occasion") or "").strip()
+
+    if not location:
+        return _json_error("Missing location")
+    if not weather_key:
+        return _json_error("Missing weather")
+    if not occasion_key:
+        return _json_error("Missing occasion")
+
+    os.environ["FAL_KEY"] = cfg.key
+
+    img = request.FILES["image"]
+    raw = img.read()
+    if not raw:
+        return _json_error("Empty image upload")
+
+    raw, normalized_content_type = downscale_image_to_max_megapixels(data=raw, max_megapixels=cfg.max_megapixels)
+    base_url = upload_image_bytes(data=raw, content_type=normalized_content_type, filename=getattr(img, "name", None) or "base.jpg")
+
+    today = timezone.localdate().strftime("%d.%m.%Y")
+    weather_label = _WEATHER_LABELS_UA.get(weather_key, weather_key)
+    occasion_label = _OCCASION_LABELS_UA.get(occasion_key, occasion_key)
+    name = f"{today} · {location} · {weather_label} · {occasion_label}"
+
+    gen = Generation.objects.create(
+        user=request.user,
+        name=name,
+        endpoint=cfg.endpoint,
+        source_image_url=base_url,
+        source_image_sha256=sha256_bytes(raw),
+        source_images={"front": base_url},
+    )
+
+    jobs_out: list[dict[str, Any]] = []
+    for i in range(1, 6):
+        prompt = _daily_prompt_variant(location, weather_key, occasion_key, i)
+        style_key = f"daily_{i}"
+        style_label = f"Daily look #{i}"
+        try:
+            request_id = submit_nano_banana_edit(
+                endpoint=cfg.endpoint,
+                image_url=base_url,
+                prompt=prompt,
+                seed=(cfg.seed + i) if cfg.seed > 0 else 0,
+                resolution=cfg.resolution,
+                aspect_ratio=cfg.aspect_ratio,
+                output_format=cfg.output_format,
+                num_images=1,
+            )
+        except Exception as e:
+            job = GenerationJob.objects.create(
+                generation=gen,
+                style_key=style_key,
+                style_label=style_label,
+                prompt=prompt,
+                fal_request_id=f"ERROR:{style_key}:{gen.id}",
+                status="ERROR",
+                error=str(e),
+                result_images=[],
+            )
+            jobs_out.append(
+                {
+                    "id": str(job.id),
+                    "style_key": job.style_key,
+                    "style_label": job.style_label,
+                    "status": job.status,
+                    "error": job.error,
+                }
+            )
+            continue
+
+        job = GenerationJob.objects.create(
+            generation=gen,
+            style_key=style_key,
+            style_label=style_label,
+            prompt=prompt,
+            fal_request_id=request_id,
+            status="SUBMITTED",
+            result_images=[],
+        )
+        jobs_out.append(
+            {
+                "id": str(job.id),
+                "style_key": job.style_key,
+                "style_label": job.style_label,
+                "status": job.status,
+                "fal_request_id": job.fal_request_id,
+            }
+        )
+
+    return JsonResponse(
+        {
+            "generation": {
+                "id": str(gen.id),
+                "created_at": gen.created_at.isoformat(),
+                "name": gen.name,
+                "endpoint": gen.endpoint,
+                "source_image_url": gen.source_image_url,
+                "source_images": gen.source_images,
+            },
+            "jobs": jobs_out,
+        },
+        status=201,
     )

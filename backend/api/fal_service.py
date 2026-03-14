@@ -98,10 +98,59 @@ def downscale_image_to_max_megapixels(*, data: bytes, max_megapixels: float) -> 
         return data, "image/jpeg"
 
 
+def make_three_view_collage(
+    *,
+    front_jpeg: bytes,
+    left_jpeg: bytes,
+    right_jpeg: bytes,
+    gap: int = 16,
+) -> bytes:
+    """
+    Creates a horizontal 3-panel collage from 3 JPEG images.
+    Output is JPEG bytes.
+
+    Nano Banana 2 edit expects a single `image_url`. This collage packs 3 angles into one input.
+    """
+    from PIL import Image
+
+    io = __import__("io")
+    with Image.open(io.BytesIO(front_jpeg)) as im_f, Image.open(io.BytesIO(left_jpeg)) as im_l, Image.open(
+        io.BytesIO(right_jpeg)
+    ) as im_r:
+        ims = [im_f.convert("RGB"), im_l.convert("RGB"), im_r.convert("RGB")]
+
+        # Normalize height to the minimum height to avoid upscaling.
+        heights = [im.size[1] for im in ims]
+        target_h = max(1, min(heights))
+
+        resized: list[Image.Image] = []
+        for im in ims:
+            w, h = im.size
+            if h == target_h:
+                resized.append(im)
+                continue
+            new_w = max(1, int(w * (target_h / float(h))))
+            resized.append(im.resize((new_w, target_h), resample=Image.Resampling.LANCZOS))
+
+        total_w = sum(im.size[0] for im in resized) + gap * 2
+        canvas = Image.new("RGB", (total_w, target_h), (10, 15, 25))
+
+        x = 0
+        for idx, im in enumerate(resized):
+            canvas.paste(im, (x, 0))
+            x += im.size[0]
+            if idx < 2:
+                x += gap
+
+        out = io.BytesIO()
+        canvas.save(out, format="JPEG", quality=92, optimize=True)
+        return out.getvalue()
+
+
 def submit_nano_banana_edit(
     *,
     endpoint: str,
-    image_urls: list[str],
+    image_url: str,
     prompt: str,
     seed: int,
     resolution: str,
@@ -111,7 +160,7 @@ def submit_nano_banana_edit(
 ) -> str:
     client = _require_client()
     args: dict[str, Any] = {
-        "image_urls": image_urls,
+        "image_url": image_url,
         "prompt": prompt,
         "resolution": resolution,
         "aspect_ratio": aspect_ratio,

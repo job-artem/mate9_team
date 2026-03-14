@@ -497,6 +497,55 @@ h1 {
   gap: 12px;
 }
 
+.dailyForm {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .dailyForm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.looks {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 980px) {
+  .looks {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lookCard {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.lookTitle {
+  font-weight: 850;
+}
+
+.lookNote {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.lookList {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: rgba(233, 238, 252, 0.9);
+}
+
 .previewEmpty {
   height: 220px;
   display: grid;

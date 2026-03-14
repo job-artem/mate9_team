@@ -14,4 +14,5 @@ urlpatterns = [
     path("auth/me/", views.auth_me, name="auth_me"),
     path("my-styles/", views.my_styles, name="my_styles"),
     path("my-styles/<uuid:generation_id>/", views.my_style_detail, name="my_style_detail"),
+    path("daily-look/", views.create_daily_look, name="create_daily_look"),
 ]
