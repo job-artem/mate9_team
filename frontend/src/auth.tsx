@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-export type User = { username: string; first_name: string; last_name: string };
+export type User = { username: string; email?: string; first_name: string; last_name: string };
 
 type AuthState = {
   user: User | null;
@@ -48,4 +48,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
 }
-

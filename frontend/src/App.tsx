@@ -1,4 +1,4 @@
-import { NavLink, Route, Routes } from "react-router-dom";
+import { Link, NavLink, Route, Routes } from "react-router-dom";
 import GeneratePage from "./pages/GeneratePage";
 import MyStylesPage from "./pages/MyStylesPage";
 import LoginPage from "./pages/LoginPage";
@@ -14,17 +14,21 @@ export default function App() {
       <header className="topbar">
         <div className="topbarInner">
           <div className="brand">Mate9</div>
-          <nav className="nav">
-            <NavLink to="/" end className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-              Генерація стилю
-            </NavLink>
-            <NavLink to="/my-styles" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-              Мої стилі
-            </NavLink>
-            <NavLink to="/logout" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-              Вихід
-            </NavLink>
-          </nav>
+          {user ? (
+            <nav className="nav">
+              <NavLink to="/" end className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
+                Генерація стилю
+              </NavLink>
+              <NavLink to="/my-styles" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
+                Мої стилі
+              </NavLink>
+              <NavLink to="/logout" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
+                Вихід
+              </NavLink>
+            </nav>
+          ) : (
+            <div className="navEmpty" />
+          )}
 
           <div className="userBox" title={user ? user.username : ""}>
             <div className="userIcon" aria-hidden="true">
@@ -33,7 +37,17 @@ export default function App() {
                 <circle cx="12" cy="8" r="4" />
               </svg>
             </div>
-            <div className="userName">{loading ? "..." : user ? displayName : "Гість"}</div>
+            <div className="userName">
+              {loading ? (
+                "..."
+              ) : user ? (
+                displayName
+              ) : (
+                <>
+                  Треба залогінитись. <Link className="userLink" to="/login">Вхід</Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>

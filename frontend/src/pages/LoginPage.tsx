@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { refresh } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -22,8 +22,8 @@ export default function LoginPage() {
     try {
       const payload =
         mode === "register"
-          ? { username, password, first_name: firstName, last_name: lastName }
-          : { username, password };
+          ? { email, password, first_name: firstName, last_name: lastName }
+          : { email, password };
 
       const r = await fetch(mode === "register" ? "/api/auth/register/" : "/api/auth/login/", {
         method: "POST",
@@ -50,8 +50,8 @@ export default function LoginPage() {
 
         <div className="form">
           <label className="field">
-            <span className="fieldLabel">Логін</span>
-            <input className="input" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <span className="fieldLabel">Пошта</span>
+            <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
           <label className="field">
             <span className="fieldLabel">Пароль</span>
@@ -79,7 +79,7 @@ export default function LoginPage() {
         ) : null}
 
         <div className="actions">
-          <button className="btn" disabled={busy || !username || !password} onClick={() => void onSubmit()}>
+          <button className="btn" disabled={busy || !email || !password} onClick={() => void onSubmit()}>
             {busy ? "..." : mode === "login" ? "Увійти" : "Створити акаунт"}
           </button>
           <button
@@ -94,4 +94,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

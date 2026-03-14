@@ -66,23 +66,43 @@ def auth_register(request: HttpRequest):
     if data is None:
         return _json_error("Invalid JSON")
 
+    email = str(data.get("email") or "").strip()
     username = str(data.get("username") or "").strip()
     password = str(data.get("password") or "").strip()
     first_name = str(data.get("first_name") or "").strip()
     last_name = str(data.get("last_name") or "").strip()
 
-    if not username or not password:
-        return _json_error("username and password are required")
+    if not email and not username:
+        return _json_error("email is required")
+    if not password:
+        return _json_error("password is required")
+
+    # Use email as login/username by default.
+    if not username:
+        username = email
+
     UserModel = get_user_model()
     if UserModel.objects.filter(username=username).exists():
         return _json_error("username already exists", status=409)
+    if email and UserModel.objects.filter(email=email).exists():
+        return _json_error("email already exists", status=409)
 
     user = UserModel.objects.create_user(
         username=username, password=password, first_name=first_name, last_name=last_name
     )
+    if email:
+        user.email = email
+        user.save(update_fields=["email"])
     login(request, user)
     return JsonResponse(
-        {"user": {"username": user.username, "first_name": user.first_name, "last_name": user.last_name}},
+        {
+            "user": {
+                "username": user.username,
+                "email": getattr(user, "email", ""),
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+            }
+        },
         status=201,
     )
 
@@ -96,14 +116,26 @@ def auth_login(request: HttpRequest):
     if data is None:
         return _json_error("Invalid JSON")
 
+    email = str(data.get("email") or "").strip()
     username = str(data.get("username") or "").strip()
     password = str(data.get("password") or "").strip()
+    if not username and email:
+        username = email
     user = authenticate(request, username=username, password=password)
     if user is None:
         return _json_error("Invalid credentials", status=401)
 
     login(request, user)
-    return JsonResponse({"user": {"username": user.username, "first_name": user.first_name, "last_name": user.last_name}})
+    return JsonResponse(
+        {
+            "user": {
+                "username": user.username,
+                "email": getattr(user, "email", ""),
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+            }
+        }
+    )
 
 
 @csrf_exempt
@@ -118,7 +150,16 @@ def auth_me(request: HttpRequest):
     if not request.user.is_authenticated:
         return _json_error("Unauthorized", status=401)
     u = request.user
-    return JsonResponse({"user": {"username": u.username, "first_name": u.first_name, "last_name": u.last_name}})
+    return JsonResponse(
+        {
+            "user": {
+                "username": u.username,
+                "email": getattr(u, "email", ""),
+                "first_name": u.first_name,
+                "last_name": u.last_name,
+            }
+        }
+    )
 
 
 def my_styles(request: HttpRequest):

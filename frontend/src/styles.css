@@ -76,6 +76,10 @@ code {
   align-items: center;
 }
 
+.navEmpty {
+  flex: 1;
+}
+
 .userBox {
   display: inline-flex;
   align-items: center;
@@ -106,6 +110,16 @@ code {
   max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.userLink {
+  color: var(--accent);
+  text-decoration: none;
+  margin-left: 6px;
+}
+
+.userLink:hover {
+  text-decoration: underline;
 }
 
 .navLink {

@@ -14,6 +14,7 @@ export default function LogoutPage() {
       } catch {
         // ignore
       }
+      navigate("/login");
     });
   }, []);
 

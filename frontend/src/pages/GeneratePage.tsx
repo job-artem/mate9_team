@@ -146,6 +146,10 @@ export default function GeneratePage() {
   }, [generationId, pending]);
 
   const onGenerate = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     if (!frontFile || !leftFile || !rightFile) {
       setApiError("Завантаж 3 фото: прямо, 45° ліворуч, 45° праворуч.");
       return;
