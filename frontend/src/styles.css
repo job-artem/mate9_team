@@ -263,15 +263,16 @@ h1 {
     gap: 10px;
     align-items: center;
     justify-content: space-between;
+    flex-direction: column;
     margin-top: 18px;
     flex-wrap: wrap;
 }
 
 .fieldInline {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     gap: 6px;
-    min-width: min(360px, 100%);
-    flex: 1 1 280px;
 }
 
 .form {
@@ -1409,3 +1410,21 @@ h1 {
 .lbtn:active {
   transform: translateY(0);
 }
+
+.filePickerContainer {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 50px;
+
+    background: rgba(250, 250, 250, 0.5);
+    border: 1.6px dashed #D4D4D4;
+    border-radius: 16px;
+
+}
+
