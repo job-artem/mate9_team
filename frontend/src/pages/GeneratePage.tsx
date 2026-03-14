@@ -243,10 +243,31 @@ export default function GeneratePage() {
               onChange={(e) => setStyleName(e.target.value)}
             />
           </label>
-          <label className="filePick">
-            <input className="fileInput" type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />
-            <span>{photoFile ? "Змінити фото" : "Додати фото"}</span>
-          </label>
+
+
+
+
+            <div className="filePickerContainer">
+
+                <input className="fileInput" type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />
+
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 31.9987C0 14.3263 14.3263 0 31.9987 0C49.6711 0 63.9974 14.3263 63.9974 31.9987C63.9974 49.6711 49.6711 63.9974 31.9987 63.9974C14.3263 63.9974 0 49.6711 0 31.9987Z" fill="#F5F5F5"/>
+                    <path d="M43.9956 35.9976V41.3296C43.9956 42.0367 43.7147 42.7148 43.2147 43.2147C42.7148 43.7147 42.0367 43.9956 41.3296 43.9956H22.6675C21.9604 43.9956 21.2823 43.7147 20.7823 43.2147C20.2823 42.7148 20.0015 42.0367 20.0015 41.3296V35.9976" stroke="#525252" stroke-width="2.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M38.6636 26.6665L31.9985 20.0015L25.3335 26.6665" stroke="#525252" stroke-width="2.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M31.9985 20.0015V35.9976" stroke="#525252" stroke-width="2.66602" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+
+
+                <p>Click to upload or drag and drop</p>
+
+
+            </div>
+
+          {/*<label className="filePick">*/}
+          {/*  <input className="fileInput" type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />*/}
+          {/*  <span>{photoFile ? "Змінити фото" : "Додати фото"}</span>*/}
+          {/*</label>*/}
 
           <button
             className="btn"
